@@ -1,0 +1,158 @@
+.prescription-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    padding: 20px;
+}
+
+@media (max-width: 1024px) {
+    .prescription-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+.prescription-form, .prescription-preview {
+    background: #f8f9fa;
+    padding: 25px;
+    border-radius: 10px;
+    border: 1px solid #e0e0e0;
+}
+
+.form-group label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-secondary {
+    background: linear-gradient(90deg, #95a5a6 0%, #7f8c8d 100%);
+    color: white;
+}
+
+.suggestions-box {
+    background: white;
+    border: 2px dashed #3498db;
+    border-radius: 8px;
+    padding: 15px;
+    min-height: 100px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.suggestion-item {
+    background: #e3f2fd;
+    padding: 10px;
+    margin-bottom: 8px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.suggestion-item:hover {
+    background: #bbdefb;
+    transform: translateX(5px);
+}
+
+.medicines-list {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    min-height: 100px;
+    max-height: 200px;
+    overflow-y: auto;
+    margin-bottom: 15px;
+}
+
+.medicine-item {
+    background: #f8f9fa;
+    padding: 10px;
+    margin-bottom: 8px;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-left: 4px solid #3498db;
+}
+
+.medicine-selection {
+    display: flex;
+    gap: 10px;
+}
+
+.medicine-selection .form-control {
+    flex: 1;
+}
+
+.form-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+/* Preview Card */
+.preview-card {
+    background: white;
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    border-top: 5px solid #3498db;
+}
+
+.preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #eee;
+}
+
+.clinic-info h4 {
+    color: #2c3e50;
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.preview-patient, .preview-medicines, .preview-notes {
+    margin-bottom: 25px;
+}
+
+.preview-patient h5, .preview-medicines h5, .preview-notes h5 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #eee;
+}
+
+.preview-card ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.preview-card li {
+    padding: 8px 0;
+    border-bottom: 1px dashed #eee;
+}
+
+.preview-footer {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 2px solid #eee;
+    text-align: right;
+}
+
+.doctor-signature {
+    display: inline-block;
+    text-align: center;
+}
