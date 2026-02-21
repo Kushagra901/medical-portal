@@ -35,6 +35,7 @@
 - [🚀 Getting Started](#-getting-started)
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
+  - [Running the Application](#running-the-application)
 - [📁 Project Structure](#-project-structure)
 - [🎯 Usage](#-usage)
 - [🤝 Contributing](#-contributing)
@@ -98,9 +99,25 @@ Before you begin, ensure you have the following installed:
 - **Node.js** (v14 or higher) 
 - **npm** or **yarn**
 - **MongoDB** (local or Atlas)
+- **Git** (for cloning the repository)
 
 ```bash
 # Check your versions
 node --version
 npm --version
 mongod --version
+git --version
+
+
+
+
+
+
+
+
+
+
+
+
+
+
