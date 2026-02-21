@@ -1,0 +1,409 @@
+.doctor-login-container {
+  max-width: 450px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 40px;
+  background: white;
+  border-radius: 30px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+  animation: slideIn 0.5s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.doctor-login-container .login-header {
+  text-align: center;
+  margin-bottom: 35px;
+}
+
+.doctor-login-container .login-icon {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #2563EB 0%, #1E40AF 100%);
+  border-radius: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
+}
+
+.doctor-login-container .login-icon i {
+  font-size: 40px;
+  color: white;
+}
+
+.doctor-login-container .login-header h2 {
+  color: #1E293B;
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.doctor-login-container .login-header p {
+  color: #64748B;
+  font-size: 15px;
+}
+
+.doctor-login-container .login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.doctor-login-container .form-group {
+  width: 100%;
+}
+
+.doctor-login-container .form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #334155;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.doctor-login-container .form-group label i {
+  color: #2563EB;
+  margin-right: 8px;
+}
+
+.doctor-login-container .form-group input {
+  width: 100%;
+  height: 52px;
+  padding: 0 20px;
+  border: 2px solid #E2E8F0;
+  border-radius: 14px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 15px;
+  color: #1E293B;
+  transition: all 0.3s ease;
+  background: #F8FAFC;
+}
+
+.doctor-login-container .form-group input:focus {
+  outline: none;
+  border-color: #2563EB;
+  background: white;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+}
+
+.doctor-login-container .form-group input::placeholder {
+  color: #94A3B8;
+  font-size: 14px;
+}
+
+.doctor-login-container .form-group input.error {
+  border-color: #EF4444;
+  background: #FEF2F2;
+}
+
+.doctor-login-container .error-message {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #EF4444;
+  font-size: 12px;
+  margin-top: 6px;
+}
+
+.doctor-login-container .error-message i {
+  font-size: 12px;
+  color: #EF4444;
+}
+
+.doctor-login-container .password-input {
+  position: relative;
+}
+
+.doctor-login-container .password-toggle {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #94A3B8;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 8px;
+  transition: color 0.3s ease;
+}
+
+.doctor-login-container .password-toggle:hover {
+  color: #2563EB;
+}
+
+/* Form row for remember me and forgot password */
+.doctor-login-container .form-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 10px 0 20px;
+  width: 100%;
+}
+
+/* Checkbox container */
+.doctor-login-container .checkbox-container {
+  display: flex;
+  align-items: center;
+  position: relative;
+  padding-left: 30px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #475569;
+  user-select: none;
+  height: 24px;
+  line-height: 24px;
+}
+
+.doctor-login-container .checkbox-container input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.doctor-login-container .checkmark {
+  position: absolute;
+  left: 0;
+  height: 20px;
+  width: 20px;
+  background-color: #F1F5F9;
+  border: 2px solid #CBD5E1;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  top: 2px;
+}
+
+.doctor-login-container .checkbox-container:hover input~.checkmark {
+  background-color: #E2E8F0;
+  border-color: #94A3B8;
+}
+
+.doctor-login-container .checkbox-container input:checked~.checkmark {
+  background-color: #2563EB;
+  border-color: #2563EB;
+}
+
+.doctor-login-container .checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+.doctor-login-container .checkbox-container input:checked~.checkmark:after {
+  display: block;
+}
+
+.doctor-login-container .checkbox-container .checkmark:after {
+  left: 6px;
+  top: 2px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.doctor-login-container .checkbox-label {
+  margin-left: 0;
+  line-height: 24px;
+}
+
+.doctor-login-container .forgot-link {
+  color: #2563EB;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: color 0.2s ease;
+  line-height: 24px;
+}
+
+.doctor-login-container .forgot-link:hover {
+  color: #1E40AF;
+  text-decoration: underline;
+}
+
+.doctor-login-container .login-btn {
+  width: 100%;
+  height: 54px;
+  background: linear-gradient(135deg, #2563EB 0%, #1E40AF 100%);
+  border: none;
+  border-radius: 14px;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 20px rgba(37, 99, 235, 0.2);
+}
+
+.doctor-login-container .login-btn:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 30px rgba(37, 99, 235, 0.3);
+}
+
+.doctor-login-container .login-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.doctor-login-container .demo-section {
+  margin: 25px 0 20px;
+  padding: 20px 0;
+  border-top: 2px solid #F1F5F9;
+  border-bottom: 2px solid #F1F5F9;
+}
+
+.doctor-login-container .demo-title {
+  text-align: center;
+  color: #64748B;
+  font-size: 14px;
+  margin-bottom: 15px;
+  position: relative;
+}
+
+.doctor-login-container .demo-title::before,
+.doctor-login-container .demo-title::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 60px;
+  height: 2px;
+  background: #E2E8F0;
+}
+
+.doctor-login-container .demo-title::before {
+  left: 0;
+}
+
+.doctor-login-container .demo-title::after {
+  right: 0;
+}
+
+.doctor-login-container .demo-buttons {
+  display: flex;
+  gap: 15px;
+}
+
+.doctor-login-container .demo-btn {
+  flex: 1;
+  padding: 12px;
+  background: #F8FAFC;
+  border: 2px solid #E2E8F0;
+  border-radius: 12px;
+  color: #334155;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.doctor-login-container .demo-btn.general:hover {
+  background: #EFF6FF;
+  border-color: #2563EB;
+  color: #2563EB;
+  transform: translateY(-2px);
+}
+
+.doctor-login-container .demo-btn.cardio:hover {
+  background: #EFF6FF;
+  border-color: #2563EB;
+  color: #2563EB;
+  transform: translateY(-2px);
+}
+
+.doctor-login-container .demo-btn i {
+  font-size: 16px;
+  color: #94A3B8;
+  transition: color 0.3s ease;
+}
+
+.doctor-login-container .demo-btn.general:hover i,
+.doctor-login-container .demo-btn.cardio:hover i {
+  color: #2563EB;
+}
+
+.doctor-login-container .signup-section {
+  text-align: center;
+  margin-top: 20px;
+  padding: 15px;
+  background: #F8FAFC;
+  border-radius: 14px;
+}
+
+.doctor-login-container .signup-section p {
+  color: #64748B;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.doctor-login-container .signup-link {
+  background: none;
+  border: none;
+  color: #2563EB;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  padding: 8px 16px;
+  border-radius: 10px;
+}
+
+.doctor-login-container .signup-link:hover {
+  background: rgba(37, 99, 235, 0.1);
+  gap: 12px;
+}
+
+.doctor-login-container .signup-link i {
+  font-size: 14px;
+  transition: transform 0.3s ease;
+}
+
+.doctor-login-container .signup-link:hover i {
+  transform: translateX(5px);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .doctor-login-container {
+    padding: 30px 20px;
+  }
+
+  .doctor-login-container .demo-buttons {
+    flex-direction: column;
+  }
+
+  .doctor-login-container .form-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .doctor-login-container .forgot-link {
+    align-self: flex-start;
+  }
+}

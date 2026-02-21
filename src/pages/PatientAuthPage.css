@@ -1,0 +1,300 @@
+.patient-auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #43A047 0%, #2E7D32 100%);
+  padding: 20px;
+  font-family: 'Poppins', sans-serif;
+}
+
+.patient-left {
+  background: linear-gradient(145deg, #2E7D32 0%, #43A047 100%) !important;
+}
+
+.patient-icon {
+  background: rgba(255, 215, 0, 0.2) !important;
+}
+
+.patient-icon i {
+  color: #FFD700 !important;
+}
+
+.patient-feature-icon {
+  background: rgba(255, 215, 0, 0.15) !important;
+}
+
+.patient-feature-icon i {
+  color: #FFD700 !important;
+}
+
+/* Patient Login Container */
+.patient-login-container {
+  max-width: 480px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 40px;
+  background: white;
+  border-radius: 30px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+  animation: slideInRight 0.6s ease;
+}
+
+.patient-login-container .login-icon {
+  background: linear-gradient(135deg, #43A047 0%, #2E7D32 100%);
+  box-shadow: 0 15px 25px rgba(67, 160, 71, 0.3);
+}
+
+.patient-login-container .login-btn {
+  background: linear-gradient(135deg, #43A047 0%, #2E7D32 100%);
+  box-shadow: 0 10px 20px rgba(67, 160, 71, 0.2);
+}
+
+.patient-login-container .login-btn:hover {
+  box-shadow: 0 15px 30px rgba(67, 160, 71, 0.3);
+}
+
+.patient-login-container .forgot-password {
+  color: #43A047;
+}
+
+.patient-login-container .forgot-password:hover {
+  color: #2E7D32;
+}
+
+.patient-login-container .btn-link {
+  color: #43A047;
+}
+
+.patient-login-container .btn-link:hover {
+  color: #2E7D32;
+}
+
+/* Patient Signup Container */
+.patient-signup-container {
+  max-width: 550px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 40px;
+  background: white;
+  border-radius: 30px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+  animation: slideInRight 0.6s ease;
+}
+
+/* Progress Bar for Signup */
+.signup-progress {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 40px;
+  padding: 0 10px;
+}
+
+.progress-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.step-number {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background: #F0F4F8;
+  color: #95A5A6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  margin-bottom: 8px;
+  transition: all 0.3s ease;
+  border: 3px solid transparent;
+}
+
+.step-label {
+  font-size: 13px;
+  color: #95A5A6;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.progress-step.active .step-number {
+  background: #43A047;
+  color: white;
+  box-shadow: 0 0 0 4px rgba(67, 160, 71, 0.2);
+  transform: scale(1.1);
+}
+
+.progress-step.active .step-label {
+  color: #43A047;
+  font-weight: 600;
+}
+
+.progress-line {
+  flex: 1;
+  height: 3px;
+  background: #F0F4F8;
+  margin: 0 15px;
+  position: relative;
+  top: -12px;
+  transition: background 0.3s ease;
+}
+
+.progress-line.active {
+  background: #43A047;
+}
+
+/* Form Section */
+.form-section {
+  margin: 30px 0;
+  padding: 25px;
+  background: #F8FAFF;
+  border-radius: 20px;
+}
+
+.form-section h3 {
+  color: #2C3E50;
+  font-size: 18px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.form-section h3 i {
+  color: #43A047;
+}
+
+/* Image Upload */
+.image-upload {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  overflow: hidden;
+  cursor: pointer;
+  border: 4px solid #E0E0E0;
+  transition: all 0.3s ease;
+  margin: 0 auto 20px;
+}
+
+.image-upload:hover {
+  border-color: #43A047;
+  transform: scale(1.05);
+  box-shadow: 0 10px 25px rgba(67, 160, 71, 0.3);
+}
+
+.preview-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.upload-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #F0F4F8, #E8ECF2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #95A5A6;
+}
+
+.upload-placeholder i {
+  font-size: 35px;
+  margin-bottom: 8px;
+}
+
+.upload-placeholder p {
+  font-size: 11px;
+  text-align: center;
+}
+
+.file-input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* Form Actions */
+.form-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 2px solid #F0F4F8;
+}
+
+.form-actions .btn {
+  min-width: 160px;
+  padding: 16px 24px;
+  border-radius: 14px;
+  font-weight: 600;
+  font-size: 15px;
+  transition: all 0.3s ease;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 2px solid #43A047;
+  color: #43A047;
+}
+
+.btn-outline:hover {
+  background: #43A047;
+  color: white;
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(67, 160, 71, 0.2);
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #43A047 0%, #2E7D32 100%);
+  border: none;
+  color: white;
+  box-shadow: 0 10px 20px rgba(67, 160, 71, 0.2);
+}
+
+.btn-success:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 30px rgba(67, 160, 71, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .patient-signup-container {
+    padding: 30px 25px;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .form-actions .btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .signup-progress {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .progress-line {
+    width: 100%;
+    margin: 5px 0;
+  }
+  
+  .form-section {
+    padding: 15px;
+  }
+}

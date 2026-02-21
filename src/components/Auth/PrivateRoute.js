@@ -1,26 +1,36 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
+import { getCurrentDoctor } from '../../services/doctorAuth';
+import { getCurrentPatient } from '../../services/patientAuth';
 import { useAuth } from '../../services/auth';
 
-const PrivateRoute = ({ children, element }) => {
-  const { user, loading } = useAuth();
+const PrivateRoute = ({ children, role }) => {
+  // Check both auth systems
+  const { user } = useAuth(); // Original auth
+  const doctorUser = getCurrentDoctor(); // Doctor auth
+  const patientUser = getCurrentPatient(); // Patient auth
 
-  if (loading) {
-    return (
-      <div className="loading-container">
-        <div className="loading-spinner"></div>
-        <p>Loading...</p>
-      </div>
-    );
+  // Role-based protection
+  if (role === 'doctor') {
+    if (!doctorUser) {
+      return <Navigate to="/doctor/auth" />;
+    }
+    return children;
   }
 
-  // For Chatbot (it's not a route, just a component)
-  if (element) {
-    return user ? children : null;
+  if (role === 'patient') {
+    if (!patientUser) {
+      return <Navigate to="/patient/auth" />;
+    }
+    return children;
   }
 
-  // For regular routes
-  return user ? children : <Navigate to="/login" />;
+  // Original dashboard protection (no specific role)
+  if (!user && !doctorUser && !patientUser) {
+    return <Navigate to="/login" />;
+  }
+
+  return children;
 };
 
 export default PrivateRoute;

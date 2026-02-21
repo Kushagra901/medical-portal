@@ -26,12 +26,12 @@
 
 .stat-card {
   background: white;
-  border-radius: var(--border-radius);
+  border-radius: 12px;
   padding: 25px;
   display: flex;
   align-items: center;
   gap: 20px;
-  box-shadow: var(--shadow);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   transition: transform 0.3s ease;
 }
 
@@ -67,17 +67,10 @@
   font-size: 14px;
 }
 
-.dashboard-content {
+.dashboard-content-grid {
   display: grid;
   grid-template-columns: 2fr 1fr;
   gap: 25px;
-}
-
-.card {
-  background: white;
-  border-radius: var(--border-radius);
-  padding: 25px;
-  box-shadow: var(--shadow);
 }
 
 .card-header {
@@ -85,7 +78,6 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
-  gap: 15px;
 }
 
 .card-header h3 {
@@ -93,35 +85,14 @@
   align-items: center;
   gap: 10px;
   color: #2C3E50;
-  flex: 1;
 }
 
-/* Add Appointment Button - More Visible */
-.btn-add-appointment {
-  background: linear-gradient(90deg, #FF6B35 0%, #FF5722 100%);
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
-  flex-shrink: 0;
-}
-
-.btn-add-appointment:hover {
-  background: linear-gradient(90deg, #FF5722 0%, #E64A19 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(255, 107, 53, 0.4);
-}
-
-.btn-add-appointment:active {
-  transform: translateY(0);
+.card {
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  padding: 25px;
+  margin-bottom: 25px;
 }
 
 .table-container {
@@ -147,19 +118,11 @@ td {
   border-bottom: 1px solid #eee;
 }
 
-/* Fix table action column width */
-table th:nth-child(6),
-table td:nth-child(6) {
-  width: 140px;
-  min-width: 140px;
-}
-
 .status-badge {
   padding: 6px 12px;
   border-radius: 20px;
   font-size: 12px;
   font-weight: 500;
-  display: inline-block;
 }
 
 .status-completed {
@@ -182,38 +145,26 @@ table td:nth-child(6) {
   color: #9C27B0;
 }
 
-/* View Action Button - Improved */
-.btn-view-action {
-  background: linear-gradient(90deg, #4285F4 0%, #3367D6 100%);
-  color: white;
+.action-btn {
+  padding: 8px 16px;
   border: none;
-  padding: 10px 16px;
   border-radius: 6px;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
   cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   transition: all 0.3s ease;
-  min-width: 120px;
-  justify-content: center;
-  white-space: nowrap;
 }
 
-.btn-view-action:hover {
-  background: linear-gradient(90deg, #3367D6 0%, #2A56CC 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(66, 133, 244, 0.3);
-}
-
-.btn-view-action:active {
-  transform: translateY(0);
-}
-
-/* Remove old button styles that might conflict */
 .view-btn {
-  display: none;
+  background: #2196F3;
+  color: white;
+}
+
+.view-btn:hover {
+  background: #1976D2;
 }
 
 .dashboard-sidebar {
@@ -233,14 +184,6 @@ table td:nth-child(6) {
   justify-content: center;
   padding: 12px;
   font-size: 14px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: all 0.3s ease;
-  font-weight: 500;
 }
 
 .action-btn.primary {
@@ -261,15 +204,6 @@ table td:nth-child(6) {
 .action-btn.info {
   background: linear-gradient(90deg, #9C27B0 0%, #7B1FA2 100%);
   color: white;
-}
-
-.action-btn.primary:hover,
-.action-btn.success:hover,
-.action-btn.warning:hover,
-.action-btn.info:hover {
-  opacity: 0.9;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .alert-item {
@@ -311,103 +245,4 @@ table td:nth-child(6) {
 
 .alert-item.success i {
   color: #4CAF50;
-}
-
-/* Responsive Design */
-@media (max-width: 1200px) {
-  .dashboard-content {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 768px) {
-  .dashboard-overview {
-    padding: 15px;
-  }
-  
-  .welcome-section h1 {
-    font-size: 26px;
-  }
-  
-  .stats-grid {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  }
-  
-  .stat-card {
-    padding: 20px;
-    flex-direction: column;
-    text-align: center;
-    gap: 15px;
-  }
-  
-  .stat-icon {
-    width: 50px;
-    height: 50px;
-    font-size: 20px;
-  }
-  
-  .stat-content h3 {
-    font-size: 24px;
-  }
-  
-  .stat-change {
-    margin-left: 0;
-  }
-  
-  .btn-add-appointment {
-    padding: 10px 16px;
-    font-size: 13px;
-  }
-  
-  .btn-view-action {
-    padding: 8px 12px;
-    font-size: 12px;
-    min-width: 100px;
-  }
-  
-  table th:nth-child(6),
-  table td:nth-child(6) {
-    width: 120px;
-    min-width: 120px;
-  }
-  
-  .btn-view-action span {
-    display: none;
-  }
-  
-  .btn-view-action i {
-    margin: 0;
-  }
-  
-  th, td {
-    padding: 12px 10px;
-  }
-  
-  .card {
-    padding: 20px;
-  }
-}
-
-@media (max-width: 480px) {
-  .card-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  
-  .btn-add-appointment {
-    width: 100%;
-    justify-content: center;
-  }
-  
-  table th:nth-child(5),
-  table td:nth-child(5),
-  table th:nth-child(6),
-  table td:nth-child(6) {
-    display: none;
-  }
-  
-  .status-badge {
-    padding: 4px 8px;
-    font-size: 11px;
-  }
 }

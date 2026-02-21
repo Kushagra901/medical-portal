@@ -1,0 +1,565 @@
+.patient-signup-container {
+  max-width: 850px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 40px;
+  background: white;
+  border-radius: 30px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+  animation: slideIn 0.5s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Header */
+.signup-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.signup-header h2 {
+  color: #1E293B;
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.signup-header p {
+  color: #64748B;
+  font-size: 16px;
+}
+
+/* Progress Steps - Matching Doctor style with green theme */
+.progress-steps {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 50px;
+  padding: 0 20px;
+  position: relative;
+}
+
+.progress-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+}
+
+.step-indicator {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #F1F5F9;
+  color: #94A3B8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 18px;
+  margin-bottom: 10px;
+  transition: all 0.3s ease;
+  border: 3px solid transparent;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.progress-step.active .step-indicator {
+  background: #43A047;
+  color: white;
+  box-shadow: 0 0 0 4px rgba(67, 160, 71, 0.2);
+  transform: scale(1.1);
+}
+
+.progress-step.completed .step-indicator {
+  background: #10B981;
+  color: white;
+}
+
+.step-label {
+  font-size: 14px;
+  color: #64748B;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.progress-step.active .step-label {
+  color: #43A047;
+  font-weight: 600;
+}
+
+.progress-line {
+  flex: 1;
+  height: 3px;
+  background: #E2E8F0;
+  margin: 0 15px;
+  position: relative;
+  top: -12px;
+  z-index: 1;
+  transition: background 0.3s ease;
+}
+
+.progress-line.active {
+  background: #43A047;
+}
+
+/* Step Header */
+.step-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 30px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #F1F5F9;
+}
+
+.step-header i {
+  font-size: 24px;
+  color: #43A047;
+  background: #E8F5E9;
+  padding: 12px;
+  border-radius: 12px;
+}
+
+.step-header h3 {
+  color: #1E293B;
+  font-size: 22px;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* Form Grid */
+.form-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 5px;
+}
+
+.form-group.full-width {
+  width: 100%;
+}
+
+.form-group.half-width {
+  width: calc(50% - 12px);
+}
+
+.form-group.third-width {
+  width: calc(33.333% - 16px);
+}
+
+/* Form Labels */
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #334155;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+.required {
+  color: #EF4444;
+  margin-left: 4px;
+  font-size: 16px;
+}
+
+/* Form Inputs */
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 14px 18px;
+  border: 2px solid #E2E8F0;
+  border-radius: 14px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 15px;
+  color: #1E293B;
+  transition: all 0.3s ease;
+  background: #F8FAFC;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #43A047;
+  background: white;
+  box-shadow: 0 0 0 4px rgba(67, 160, 71, 0.1);
+}
+
+.form-group input.error,
+.form-group select.error,
+.form-group textarea.error {
+  border-color: #EF4444;
+  background: #FEF2F2;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: #94A3B8;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+/* Error Message */
+.error-message {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #EF4444;
+  font-size: 12px;
+  margin-top: 8px;
+  animation: shake 0.3s ease;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+.error-message i {
+  font-size: 12px;
+}
+
+/* Field Hint */
+.field-hint {
+  display: block;
+  color: #94A3B8;
+  font-size: 12px;
+  margin-top: 8px;
+  font-style: italic;
+  padding-left: 4px;
+}
+
+/* Profile Photo Upload */
+.profile-upload-area {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  padding: 25px;
+  background: #F8FAFC;
+  border-radius: 20px;
+  border: 2px dashed #E2E8F0;
+  transition: all 0.3s ease;
+}
+
+.profile-upload-area:hover {
+  border-color: #43A047;
+  background: #E8F5E9;
+}
+
+.profile-preview {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: white;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  border: 4px solid white;
+  flex-shrink: 0;
+}
+
+.preview-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.preview-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #E2E8F0, #CBD5E1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.preview-placeholder i {
+  font-size: 36px;
+  color: #64748B;
+}
+
+.upload-details {
+  flex: 1;
+}
+
+.upload-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 28px;
+  background: #43A047;
+  color: white;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  margin-bottom: 12px;
+  box-shadow: 0 6px 15px rgba(67, 160, 71, 0.2);
+}
+
+.upload-btn:hover {
+  background: #2E7D32;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(67, 160, 71, 0.3);
+}
+
+.upload-btn i {
+  font-size: 16px;
+}
+
+.file-input {
+  display: none;
+}
+
+.upload-hint {
+  color: #64748B;
+  font-size: 13px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Insurance Section */
+.insurance-section {
+  margin-top: 40px;
+  padding: 25px;
+  background: #F8FAFC;
+  border-radius: 20px;
+  border: 2px solid #E2E8F0;
+}
+
+.insurance-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 25px;
+}
+
+.insurance-header i {
+  font-size: 20px;
+  color: #43A047;
+  background: #E8F5E9;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.insurance-header h4 {
+  color: #1E293B;
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* Form Actions */
+.form-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 40px;
+  padding-top: 25px;
+  border-top: 2px solid #F1F5F9;
+}
+
+.btn {
+  padding: 16px 32px;
+  border: none;
+  border-radius: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-family: 'Poppins', sans-serif;
+  min-width: 160px;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 2px solid #43A047;
+  color: #43A047;
+}
+
+.btn-outline:hover {
+  background: #43A047;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(67, 160, 71, 0.2);
+}
+
+.btn-primary {
+  background: #43A047;
+  color: white;
+  box-shadow: 0 8px 20px rgba(67, 160, 71, 0.2);
+}
+
+.btn-primary:hover {
+  background: #2E7D32;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 25px rgba(67, 160, 71, 0.3);
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #43A047 0%, #2E7D32 100%);
+  color: white;
+  box-shadow: 0 8px 20px rgba(67, 160, 71, 0.2);
+}
+
+.btn-success:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 25px rgba(67, 160, 71, 0.3);
+}
+
+.btn i {
+  font-size: 16px;
+}
+
+.next-btn {
+  margin-left: auto;
+}
+
+.submit-btn {
+  margin-left: auto;
+  min-width: 200px;
+}
+
+/* Signup Footer */
+.signup-footer {
+  margin-top: 30px;
+  padding-top: 20px;
+  text-align: center;
+  border-top: 2px solid #F1F5F9;
+}
+
+.signup-footer p {
+  color: #64748B;
+  font-size: 15px;
+  margin-bottom: 12px;
+}
+
+.login-link {
+  background: none;
+  border: none;
+  color: #43A047;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  padding: 10px 24px;
+  border-radius: 30px;
+}
+
+.login-link:hover {
+  background: rgba(67, 160, 71, 0.1);
+  gap: 12px;
+  transform: translateY(-2px);
+}
+
+.login-link i {
+  font-size: 14px;
+  transition: transform 0.3s ease;
+}
+
+.login-link:hover i {
+  transform: translateX(5px);
+}
+
+/* Fade In Animation */
+.fade-in {
+  animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .patient-signup-container {
+    padding: 30px 20px;
+  }
+  
+  .form-group.half-width,
+  .form-group.third-width {
+    width: 100%;
+  }
+  
+  .profile-upload-area {
+    flex-direction: column;
+    text-align: center;
+    padding: 20px;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .btn {
+    width: 100%;
+  }
+  
+  .next-btn,
+  .submit-btn {
+    margin-left: 0;
+  }
+  
+  .progress-steps {
+    padding: 0 5px;
+  }
+  
+  .step-indicator {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+  }
+  
+  .step-label {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .progress-steps {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .progress-line {
+    width: 100%;
+    top: 0;
+  }
+  
+  .insurance-section {
+    padding: 15px;
+  }
+}

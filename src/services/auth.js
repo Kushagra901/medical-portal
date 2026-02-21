@@ -1,5 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { toast } from 'react-toastify';
+import { getCurrentDoctor, doctorLogin as docLogin } from './doctorAuth';
+import { getCurrentPatient, patientLogin as patLogin } from './patientAuth';
 
 const AuthContext = createContext(null);
 
@@ -12,49 +14,77 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is logged in from localStorage
-    const storedUser = localStorage.getItem('doctor_user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
+    // Check all possible auth sources
+    const originalUser = localStorage.getItem('user');
+    const doctorUser = getCurrentDoctor();
+    const patientUser = getCurrentPatient();
+    
+    if (originalUser) {
+      setUser(JSON.parse(originalUser));
+    } else if (doctorUser) {
+      setUser(doctorUser);
+    } else if (patientUser) {
+      setUser(patientUser);
     }
+    
     setLoading(false);
   }, []);
 
-  // Sample doctors data (in real app, this would come from backend)
-  const doctors = [
-    { id: 1, username: 'dr.smith@medicare.com', password: 'doctor123', name: 'Dr. John Smith', specialization: 'General Physician', license: 'MED123456' },
-    { id: 2, username: 'dr.jones@medicare.com', password: 'doctor123', name: 'Dr. Sarah Jones', specialization: 'Cardiologist', license: 'MED789012' },
-    { id: 3, username: 'dr.wilson@medicare.com', password: 'doctor123', name: 'Dr. Michael Wilson', specialization: 'Pediatrician', license: 'MED345678' }
+  // Original doctors data (for backward compatibility)
+  const originalDoctors = [
+    { id: 1, username: 'dr.smith@medicare.com', password: 'doctor123', name: 'Dr. John Smith', specialization: 'General Physician' },
+    { id: 2, username: 'dr.jones@medicare.com', password: 'doctor123', name: 'Dr. Sarah Jones', specialization: 'Cardiologist' },
   ];
 
-  const login = (username, password) => {
-    // Find doctor with matching credentials
-    const doctor = doctors.find(doc => 
+  const login = async (username, password) => {
+    // Try original auth first
+    const originalDoctor = originalDoctors.find(doc => 
       doc.username === username && doc.password === password
     );
 
-    if (doctor) {
+    if (originalDoctor) {
       const userData = {
-        id: doctor.id,
-        name: doctor.name,
-        email: doctor.username,
-        specialization: doctor.specialization,
-        license: doctor.license
+        id: originalDoctor.id,
+        name: originalDoctor.name,
+        email: originalDoctor.username,
+        specialization: originalDoctor.specialization,
+        role: 'doctor'
       };
       
       setUser(userData);
-      localStorage.setItem('doctor_user', JSON.stringify(userData));
-      toast.success(`Welcome back, ${doctor.name}!`);
+      localStorage.setItem('user', JSON.stringify(userData));
+      toast.success(`Welcome back, ${originalDoctor.name}!`);
       return true;
-    } else {
-      toast.error('Invalid credentials. Please try again.');
-      return false;
+    }
+
+    // Try new doctor auth
+    try {
+      const doctorData = await docLogin(username, password);
+      if (doctorData) {
+        setUser({ ...doctorData, role: 'doctor' });
+        return true;
+      }
+    } catch (error) {
+      // Try patient auth
+      try {
+        const patientData = await patLogin(username, password);
+        if (patientData) {
+          setUser({ ...patientData, role: 'patient' });
+          return true;
+        }
+      } catch (err) {
+        toast.error('Invalid credentials. Please try again.');
+        return false;
+      }
     }
   };
 
   const logout = () => {
+    // Clear all auth storages
+    localStorage.removeItem('user');
+    localStorage.removeItem('doctorUser');
+    localStorage.removeItem('patientUser');
     setUser(null);
-    localStorage.removeItem('doctor_user');
     toast.info('Logged out successfully');
   };
 

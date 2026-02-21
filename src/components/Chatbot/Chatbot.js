@@ -27,13 +27,13 @@ const Chatbot = () => {
     'thank you': 'You\'re welcome Doctor! Let me know if you need further assistance.',
   };
 
-  // Common medical queries
+  // Common medical queries - REMOVED 4 ITEMS
   const quickQueries = [
-    { text: 'Prescription suggestions', icon: 'fas fa-prescription' },
-    { text: 'Medicine dosage guide', icon: 'fas fa-pills' },
-    { text: 'Patient symptoms analysis', icon: 'fas fa-stethoscope' },
+    // 'Prescription suggestions' - REMOVED
+    // 'Medicine dosage guide' - REMOVED
+    // 'Patient symptoms analysis' - REMOVED
+    // 'Drug interactions' - REMOVED
     { text: 'Medical abbreviations', icon: 'fas fa-file-medical' },
-    { text: 'Drug interactions', icon: 'fas fa-exclamation-triangle' },
     { text: 'Lab result interpretation', icon: 'fas fa-vial' },
     { text: 'Emergency protocols', icon: 'fas fa-ambulance' },
     { text: 'Schedule appointment', icon: 'fas fa-calendar-check' },
@@ -207,7 +207,7 @@ const Chatbot = () => {
             </div>
           </div>
 
-          {/* Quick Queries */}
+          {/* Quick Queries - NOW WITH ONLY 4 ITEMS */}
           <div className="quick-queries">
             <h5>Quick Queries</h5>
             <div className="queries-grid">
@@ -269,28 +269,31 @@ const Chatbot = () => {
           </div>
         </div>
 
+        {/* CHATBOT FOOTER - FIXED LAYOUT */}
         <div className="chatbot-footer">
-          <div className="input-container">
-            <input
-              ref={inputRef}
-              type="text"
-              value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Type your medical query here..."
-              className="chat-input"
-            />
-            <div className="input-actions">
-              <button className="action-btn" title="Attach file">
-                <i className="fas fa-paperclip"></i>
-              </button>
-              <button className="action-btn" title="Send voice message">
-                <i className="fas fa-microphone"></i>
-              </button>
-              <button className="send-btn" onClick={handleSendMessage}>
-                <i className="fas fa-paper-plane"></i>
-              </button>
+          <div className="input-wrapper">
+            <div className="input-container">
+              <input
+                ref={inputRef}
+                type="text"
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Type your medical query here..."
+                className="chat-input"
+              />
+              <div className="input-icons">
+                <button className="icon-btn" title="Attach file">
+                  <i className="fas fa-paperclip"></i>
+                </button>
+                <button className="icon-btn" title="Send voice message">
+                  <i className="fas fa-microphone"></i>
+                </button>
+              </div>
             </div>
+            <button className="send-btn" onClick={handleSendMessage}>
+              <i className="fas fa-paper-plane"></i>
+            </button>
           </div>
           <div className="disclaimer">
             <i className="fas fa-info-circle"></i>

@@ -1,0 +1,71 @@
+.patient-dashboard .dashboard-sidebar {
+  background: linear-gradient(180deg, #4CAF50 0%, #45A049 100%);
+}
+
+.patient-dashboard .stat-card i {
+  color: #4CAF50;
+}
+
+.patient-dashboard .sidebar-nav button.active {
+  background: rgba(255, 255, 255, 0.2);
+  border-left: 4px solid #FFD700;
+}
+
+.recent-records {
+  background: white;
+  padding: 25px;
+  border-radius: 15px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+  margin-top: 30px;
+}
+
+.recent-records h3 {
+  color: #2C3E50;
+  margin-bottom: 20px;
+}
+
+.records-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.record-item {
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  border-left: 4px solid #4CAF50;
+}
+
+.record-item h4 {
+  color: #2C3E50;
+  margin-bottom: 5px;
+}
+
+.record-item p {
+  color: #7F8C8D;
+  font-size: 13px;
+  margin-bottom: 3px;
+}
+
+.no-data {
+  text-align: center;
+  color: #95A5A6;
+  padding: 40px;
+}
+
+/* Override for patient sidebar */
+.patient-sidebar .profile-image {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.patient-sidebar .logout-btn {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.patient-sidebar .logout-btn:hover {
+  background: #FF6B6B;
+  border-color: #FF6B6B;
+}
