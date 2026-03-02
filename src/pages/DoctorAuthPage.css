@@ -1,0 +1,239 @@
+.doctor-auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+  font-family: 'Poppins', sans-serif;
+}
+
+.auth-container-modern {
+  display: flex;
+  max-width: 1300px;
+  width: 100%;
+  background: white;
+  border-radius: 40px;
+  overflow: hidden;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+  min-height: 800px;
+  position: relative;
+}
+
+/* Left Side */
+.auth-left-modern {
+  flex: 1;
+  background: linear-gradient(145deg, #1a4a6e 0%, #2c6b9e 100%);
+  color: white;
+  padding: 60px 50px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-bg-pattern {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" opacity="0.05"><path d="M20 20 L80 20 L80 80 L20 80 Z" fill="none" stroke="white" stroke-width="2"/><circle cx="50" cy="50" r="20" fill="none" stroke="white" stroke-width="2"/><path d="M30 30 L70 70 M70 30 L30 70" stroke="white" stroke-width="2"/></svg>');
+  background-size: 150px;
+  animation: movePattern 30s linear infinite;
+}
+
+@keyframes movePattern {
+  from { transform: translate(0, 0); }
+  to { transform: translate(50px, 50px); }
+}
+
+.auth-brand-modern {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+.brand-icon-wrapper {
+  width: 90px;
+  height: 90px;
+  background: rgba(255, 107, 107, 0.2);
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 25px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  animation: floatIcon 3s ease-in-out infinite;
+}
+
+@keyframes floatIcon {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.brand-icon-wrapper i {
+  font-size: 45px;
+  color: #FF6B6B;
+}
+
+.auth-brand-modern h1 {
+  font-size: 42px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  letter-spacing: -0.5px;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.auth-brand-modern p {
+  font-size: 18px;
+  opacity: 0.9;
+  font-weight: 300;
+}
+
+.auth-features-modern {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 35px;
+  margin-bottom: 40px;
+}
+
+.feature-item-modern {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+  padding: 20px 25px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.feature-item-modern:hover {
+  transform: translateX(15px);
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.feature-icon-modern {
+  width: 60px;
+  height: 60px;
+  background: rgba(255, 107, 107, 0.2);
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.feature-item-modern:hover .feature-icon-modern {
+  transform: rotate(5deg) scale(1.1);
+  background: rgba(255, 107, 107, 0.3);
+}
+
+.feature-icon-modern i {
+  font-size: 28px;
+  color: #FF6B6B;
+}
+
+.feature-text-modern h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.feature-text-modern p {
+  font-size: 14px;
+  opacity: 0.8;
+  line-height: 1.5;
+}
+
+.back-button-modern {
+  position: relative;
+  z-index: 2;
+  background: rgba(255, 255, 255, 0.15);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 15px 25px;
+  border-radius: 15px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.3s ease;
+  width: fit-content;
+  backdrop-filter: blur(10px);
+}
+
+.back-button-modern:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateX(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+/* Right Side */
+.auth-right-modern {
+  flex: 1.2;
+  background: linear-gradient(145deg, #F8FAFE, #F0F4FF);
+  padding: 60px 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow-y: auto;
+}
+
+/* Doctor Login Card (already styled in DoctorLogin.css) */
+.doctor-login-container {
+  max-width: 480px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 40px;
+  background: white;
+  border-radius: 30px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+  animation: slideInRight 0.6s ease;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .auth-container-modern {
+    flex-direction: column;
+    max-width: 550px;
+    min-height: auto;
+  }
+  
+  .auth-left-modern {
+    display: none;
+  }
+  
+  .auth-right-modern {
+    padding: 40px 30px;
+  }
+}
+
+@media (max-width: 640px) {
+  .auth-right-modern {
+    padding: 30px 20px;
+  }
+}

@@ -1,0 +1,599 @@
+.doctor-signup-container {
+  max-width: 850px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 40px;
+  background: white;
+  border-radius: 30px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+  animation: slideIn 0.5s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Header */
+.doctor-signup-container .signup-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.doctor-signup-container .signup-header h2 {
+  color: #1E293B;
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.doctor-signup-container .signup-header p {
+  color: #64748B;
+  font-size: 16px;
+}
+
+/* Progress Steps */
+.doctor-signup-container .progress-steps {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 50px;
+  padding: 0 20px;
+  position: relative;
+}
+
+.doctor-signup-container .progress-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+}
+
+.doctor-signup-container .step-indicator {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #F1F5F9;
+  color: #94A3B8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 18px;
+  margin-bottom: 10px;
+  transition: all 0.3s ease;
+  border: 3px solid transparent;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.doctor-signup-container .progress-step.active .step-indicator {
+  background: #2563EB;
+  color: white;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2);
+  transform: scale(1.1);
+}
+
+.doctor-signup-container .progress-step.completed .step-indicator {
+  background: #1E40AF;
+  color: white;
+}
+
+.doctor-signup-container .step-label {
+  font-size: 14px;
+  color: #64748B;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.doctor-signup-container .progress-step.active .step-label {
+  color: #2563EB;
+  font-weight: 600;
+}
+
+.doctor-signup-container .progress-line {
+  flex: 1;
+  height: 3px;
+  background: #E2E8F0;
+  margin: 0 15px;
+  position: relative;
+  top: -12px;
+  z-index: 1;
+  transition: background 0.3s ease;
+}
+
+.doctor-signup-container .progress-line.active {
+  background: #2563EB;
+}
+
+/* Step Header */
+.doctor-signup-container .step-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 30px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #F1F5F9;
+}
+
+.doctor-signup-container .step-header i {
+  font-size: 24px;
+  color: #2563EB;
+  background: #EFF6FF;
+  padding: 12px;
+  border-radius: 12px;
+}
+
+.doctor-signup-container .step-header h3 {
+  color: #1E293B;
+  font-size: 22px;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* Form Grid */
+.doctor-signup-container .form-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin-bottom: 20px;
+}
+
+.doctor-signup-container .form-group {
+  margin-bottom: 5px;
+}
+
+.doctor-signup-container .form-group.full-width {
+  width: 100%;
+}
+
+.doctor-signup-container .form-group.half-width {
+  width: calc(50% - 12px);
+}
+
+.doctor-signup-container .form-group.third-width {
+  width: calc(33.333% - 16px);
+}
+
+/* Form Labels */
+.doctor-signup-container .form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #334155;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+.doctor-signup-container .required {
+  color: #EF4444;
+  margin-left: 4px;
+  font-size: 16px;
+}
+
+/* Form Inputs */
+.doctor-signup-container .form-group input,
+.doctor-signup-container .form-group select,
+.doctor-signup-container .form-group textarea {
+  width: 100%;
+  padding: 14px 18px;
+  border: 2px solid #E2E8F0;
+  border-radius: 14px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 15px;
+  color: #1E293B;
+  transition: all 0.3s ease;
+  background: #F8FAFC;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.doctor-signup-container .form-group input:focus,
+.doctor-signup-container .form-group select:focus,
+.doctor-signup-container .form-group textarea:focus {
+  outline: none;
+  border-color: #2563EB;
+  background: white;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+}
+
+.doctor-signup-container .form-group input.error,
+.doctor-signup-container .form-group select.error,
+.doctor-signup-container .form-group textarea.error {
+  border-color: #EF4444;
+  background: #FEF2F2;
+}
+
+.doctor-signup-container .form-group input::placeholder,
+.doctor-signup-container .form-group textarea::placeholder {
+  color: #94A3B8;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+/* Error Message */
+.doctor-signup-container .error-message {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #EF4444;
+  font-size: 12px;
+  margin-top: 8px;
+  animation: shake 0.3s ease;
+}
+
+@keyframes shake {
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-5px);
+  }
+
+  75% {
+    transform: translateX(5px);
+  }
+}
+
+.doctor-signup-container .error-message i {
+  font-size: 12px;
+}
+
+/* Field Hint */
+.doctor-signup-container .field-hint {
+  display: block;
+  color: #94A3B8;
+  font-size: 12px;
+  margin-top: 8px;
+  font-style: italic;
+  padding-left: 4px;
+}
+
+/* Profile Photo Upload */
+.doctor-signup-container .profile-upload-area {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  padding: 25px;
+  background: #F8FAFC;
+  border-radius: 20px;
+  border: 2px dashed #E2E8F0;
+  transition: all 0.3s ease;
+}
+
+.doctor-signup-container .profile-upload-area:hover {
+  border-color: #2563EB;
+  background: #EFF6FF;
+}
+
+.doctor-signup-container .profile-preview {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: white;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  border: 4px solid white;
+  flex-shrink: 0;
+}
+
+.doctor-signup-container .preview-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.doctor-signup-container .preview-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #E2E8F0, #CBD5E1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.doctor-signup-container .preview-placeholder i {
+  font-size: 36px;
+  color: #64748B;
+}
+
+.doctor-signup-container .upload-details {
+  flex: 1;
+}
+
+.doctor-signup-container .upload-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 28px;
+  background: #2563EB;
+  color: white;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  margin-bottom: 12px;
+  box-shadow: 0 6px 15px rgba(37, 99, 235, 0.2);
+}
+
+.doctor-signup-container .upload-btn:hover {
+  background: #1E40AF;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
+}
+
+.doctor-signup-container .upload-btn i {
+  font-size: 16px;
+}
+
+.doctor-signup-container .file-input {
+  display: none;
+}
+
+.doctor-signup-container .upload-hint {
+  color: #64748B;
+  font-size: 13px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Days Grid */
+.doctor-signup-container .days-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.doctor-signup-container .day-checkbox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 8px;
+  background: #F8FAFC;
+  border: 2px solid #E2E8F0;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.doctor-signup-container .day-checkbox:hover {
+  background: #EFF6FF;
+  border-color: #2563EB;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.1);
+}
+
+.doctor-signup-container .day-checkbox input {
+  display: none;
+}
+
+.doctor-signup-container .day-checkbox span {
+  font-size: 14px;
+  color: #334155;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.doctor-signup-container .day-checkbox:has(input:checked) {
+  background: #EFF6FF;
+  border-color: #2563EB;
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.1);
+}
+
+.doctor-signup-container .day-checkbox:has(input:checked) span {
+  color: #2563EB;
+  font-weight: 600;
+}
+
+/* Form Actions */
+.doctor-signup-container .form-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 40px;
+  padding-top: 25px;
+  border-top: 2px solid #F1F5F9;
+}
+
+.doctor-signup-container .btn {
+  padding: 16px 32px;
+  border: none;
+  border-radius: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-family: 'Poppins', sans-serif;
+  min-width: 160px;
+}
+
+.doctor-signup-container .btn-outline {
+  background: transparent;
+  border: 2px solid #2563EB;
+  color: #2563EB;
+}
+
+.doctor-signup-container .btn-outline:hover {
+  background: #2563EB;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.2);
+}
+
+.doctor-signup-container .btn-primary {
+  background: #2563EB;
+  color: white;
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.2);
+}
+
+.doctor-signup-container .btn-primary:hover {
+  background: #1E40AF;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 25px rgba(37, 99, 235, 0.3);
+}
+
+.doctor-signup-container .btn-success {
+  background: linear-gradient(135deg, #2563EB 0%, #1E40AF 100%);
+  color: white;
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.2);
+}
+
+.doctor-signup-container .btn-success:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 25px rgba(37, 99, 235, 0.3);
+}
+
+.doctor-signup-container .btn i {
+  font-size: 16px;
+}
+
+.doctor-signup-container .next-btn {
+  margin-left: auto;
+}
+
+.doctor-signup-container .submit-btn {
+  margin-left: auto;
+  min-width: 200px;
+}
+
+/* Signup Footer */
+.doctor-signup-container .signup-footer {
+  margin-top: 30px;
+  padding-top: 20px;
+  text-align: center;
+  border-top: 2px solid #F1F5F9;
+}
+
+.doctor-signup-container .signup-footer p {
+  color: #64748B;
+  font-size: 15px;
+  margin-bottom: 12px;
+}
+
+.doctor-signup-container .login-link {
+  background: none;
+  border: none;
+  color: #2563EB;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  padding: 10px 24px;
+  border-radius: 30px;
+}
+
+.doctor-signup-container .login-link:hover {
+  background: rgba(37, 99, 235, 0.1);
+  gap: 12px;
+  transform: translateY(-2px);
+}
+
+.doctor-signup-container .login-link i {
+  font-size: 14px;
+  transition: transform 0.3s ease;
+}
+
+.doctor-signup-container .login-link:hover i {
+  transform: translateX(5px);
+}
+
+/* Fade In Animation */
+.doctor-signup-container .fade-in {
+  animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .doctor-signup-container {
+    padding: 30px 20px;
+  }
+
+  .doctor-signup-container .form-group.half-width,
+  .doctor-signup-container .form-group.third-width {
+    width: 100%;
+  }
+
+  .doctor-signup-container .profile-upload-area {
+    flex-direction: column;
+    text-align: center;
+    padding: 20px;
+  }
+
+  .doctor-signup-container .form-actions {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .doctor-signup-container .btn {
+    width: 100%;
+  }
+
+  .doctor-signup-container .next-btn,
+  .doctor-signup-container .submit-btn {
+    margin-left: 0;
+  }
+
+  .doctor-signup-container .progress-steps {
+    padding: 0 5px;
+  }
+
+  .doctor-signup-container .step-indicator {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+  }
+
+  .doctor-signup-container .step-label {
+    font-size: 12px;
+  }
+
+  .doctor-signup-container .days-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .doctor-signup-container .progress-steps {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .doctor-signup-container .progress-line {
+    width: 100%;
+    top: 0;
+  }
+
+  .doctor-signup-container .days-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
