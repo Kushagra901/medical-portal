@@ -34,6 +34,7 @@ const DoctorLogin = ({ onSwitchToSignup }) => {
         localStorage.setItem('rememberDoctor', 'true');
       }
       
+      localStorage.setItem('doctorUser', JSON.stringify(user));
       navigate('/doctor/dashboard');
     } catch (error) {
       setError(error.message || 'Login failed. Please check your credentials.');
@@ -42,27 +43,24 @@ const DoctorLogin = ({ onSwitchToSignup }) => {
     }
   };
 
-  const handleDemoLogin = (role) => {
-    const demos = {
-      general: { email: 'dr.smith@medicare.com', password: 'doctor123' },
-      cardio: { email: 'dr.jones@medicare.com', password: 'doctor123' }
-    };
-    
-    setCredentials(demos[role] || demos.general);
-  };
+  // REMOVED handleDemoLogin function
 
   const handleForgotPassword = () => {
     alert('Password reset functionality will be implemented soon.');
   };
 
   return (
-    <div className="doctor-login-container">
+    <div className="doctor-login-container professional">
       <div className="login-header">
         <div className="login-icon">
           <i className="fas fa-user-md"></i>
         </div>
         <h2>Doctor Login</h2>
-        <p>Access your medical dashboard</p>
+        <p className="time-display">{new Date().toLocaleString('en-US', { 
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: true
+        })}</p>
       </div>
 
       {error && (
@@ -124,7 +122,7 @@ const DoctorLogin = ({ onSwitchToSignup }) => {
           </label>
           <button 
             type="button"
-            className="forgot-link" 
+            className="forgot-link-button" 
             onClick={handleForgotPassword}
           >
             Forgot Password?
@@ -143,27 +141,7 @@ const DoctorLogin = ({ onSwitchToSignup }) => {
           )}
         </button>
 
-        <div className="demo-section">
-          <div className="demo-title">Quick Demo Access</div>
-          <div className="demo-buttons">
-            <button
-              type="button"
-              className="demo-btn general"
-              onClick={() => handleDemoLogin('general')}
-            >
-              <i className="fas fa-stethoscope"></i>
-              General Physician
-            </button>
-            <button
-              type="button"
-              className="demo-btn cardio"
-              onClick={() => handleDemoLogin('cardio')}
-            >
-              <i className="fas fa-heartbeat"></i>
-              Cardiologist
-            </button>
-          </div>
-        </div>
+        {/* REMOVED Demo Section */}
 
         <div className="signup-section">
           <p>New to MediCare?</p>

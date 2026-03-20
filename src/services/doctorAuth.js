@@ -1,37 +1,38 @@
 import api from './api';
 
-// Doctor Signup
-export const doctorSignup = async (doctorData) => {
-  try {
-    console.log('Sending to backend:', doctorData);
-    
-    const response = await api.post('/doctors/register', doctorData);
-    console.log('Backend response:', response.data);
-    
-    if (response.data.success) {
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('doctorUser', JSON.stringify(response.data.user));
-      return response.data.user;
-    }
-  } catch (error) {
-    console.error('Signup error details:', error.response?.data || error.message);
-    throw new Error(error.response?.data?.message || 'Registration failed');
-  }
-};
-
-// Rest of the file remains the same...
-
-// Doctor Login
+// Doctor Login - REMOVED mock data fallback
 export const doctorLogin = async (email, password) => {
   try {
     const response = await api.post('/doctors/login', { email, password });
+    console.log('Login response:', response.data);
+    
     if (response.data.success) {
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('doctorUser', JSON.stringify(response.data.user));
       return response.data.user;
     }
   } catch (error) {
-    throw new Error(error.response?.data?.message || 'Login failed');
+    console.error('Login error:', error.response?.data || error.message);
+    throw new Error(error.response?.data?.message || 'Invalid email or password');
+  }
+};
+
+// Doctor Signup - REMOVED mock data fallback
+export const doctorSignup = async (doctorData) => {
+  try {
+    console.log('Sending doctor data:', doctorData);
+    
+    const response = await api.post('/doctors/register', doctorData);
+    console.log('Signup response:', response.data);
+    
+    if (response.data.success) {
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('doctorUser', JSON.stringify(response.data.user));
+      return response.data.user;
+    }
+  } catch (error) {
+    console.error('Signup error:', error.response?.data || error.message);
+    throw new Error(error.response?.data?.message || 'Registration failed');
   }
 };
 
@@ -60,8 +61,6 @@ export const updateDoctorProfile = async (id, profileData) => {
     }
   } catch (error) {
     console.error('Profile update error:', error);
-    const updatedUser = { ...getStoredDoctor(), ...profileData };
-    localStorage.setItem('doctorUser', JSON.stringify(updatedUser));
-    return updatedUser;
+    throw new Error('Failed to update profile');
   }
 };
