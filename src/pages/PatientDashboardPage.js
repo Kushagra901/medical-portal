@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getStoredPatient, patientLogout, updatePatientProfile } from '../services/patientAuth';
+import ImageUpload from '../components/Common/ImageUpload';
 import './PatientDashboardPage.css';
 
 const PatientDashboardPage = () => {
@@ -11,7 +12,6 @@ const PatientDashboardPage = () => {
 
   useEffect(() => {
     const currentPatient = getStoredPatient();
-    console.log('Current patient from storage:', currentPatient); // Debug log
     if (!currentPatient) {
       navigate('/patient/auth');
     } else {
@@ -24,39 +24,14 @@ const PatientDashboardPage = () => {
     navigate('/patient/auth');
   };
 
-  const handleImageUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    if (file.size > 5 * 1024 * 1024) {
-      alert('File size must be less than 5MB');
-      return;
-    }
-
-    if (!file.type.startsWith('image/')) {
-      alert('Please upload an image file');
-      return;
-    }
-
-    setUploadingImage(true);
-
+  const handleImageUpload = async (imageData) => {
     try {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onloadend = async () => {
-        const base64Image = reader.result;
-        
-        const updatedPatient = await updatePatientProfile(patient.id, {
-          ...patient,
-          profileImage: base64Image
-        });
-        
-        setPatient(updatedPatient);
-        setUploadingImage(false);
-      };
+      setUploadingImage(true);
+      setPatient({ ...patient, profileImage: imageData });
+      await updatePatientProfile(patient.id, { profileImage: imageData });
+      setUploadingImage(false);
     } catch (error) {
-      console.error('Error uploading image:', error);
-      alert('Failed to upload image');
+      console.error('Error updating profile image:', error);
       setUploadingImage(false);
     }
   };
@@ -81,59 +56,31 @@ const PatientDashboardPage = () => {
         </div>
         
         <div className="patient-profile">
-          <div className="profile-image-container">
-            {patient.profileImage ? (
-              <img src={patient.profileImage} alt={patient.name} className="profile-image" />
-            ) : (
-              <div className="profile-image-placeholder patient-placeholder">
-                <i className="fas fa-user-circle"></i>
-              </div>
-            )}
-            <label htmlFor="patient-image-upload" className="image-upload-label patient-upload">
-              <i className="fas fa-camera"></i>
-              <input
-                type="file"
-                id="patient-image-upload"
-                accept="image/*"
-                onChange={handleImageUpload}
-                style={{ display: 'none' }}
-              />
-            </label>
-            {uploadingImage && <div className="upload-spinner"><i className="fas fa-spinner fa-spin"></i></div>}
+          <div className="profile-image-section">
+            <ImageUpload 
+              currentImage={patient?.profileImage}
+              onImageChange={handleImageUpload}
+              userType="patient"
+            />
           </div>
           <h4>{patient.name}</h4>
           <p>ID: {patient.id}</p>
         </div>
 
         <nav className="sidebar-nav">
-          <button 
-            className={activeTab === 'overview' ? 'active' : ''}
-            onClick={() => setActiveTab('overview')}
-          >
+          <button className={activeTab === 'overview' ? 'active' : ''} onClick={() => setActiveTab('overview')}>
             <i className="fas fa-home"></i> Overview
           </button>
-          <button 
-            className={activeTab === 'records' ? 'active' : ''}
-            onClick={() => setActiveTab('records')}
-          >
+          <button className={activeTab === 'records' ? 'active' : ''} onClick={() => setActiveTab('records')}>
             <i className="fas fa-file-medical"></i> Medical Records
           </button>
-          <button 
-            className={activeTab === 'prescriptions' ? 'active' : ''}
-            onClick={() => setActiveTab('prescriptions')}
-          >
+          <button className={activeTab === 'prescriptions' ? 'active' : ''} onClick={() => setActiveTab('prescriptions')}>
             <i className="fas fa-prescription"></i> Prescriptions
           </button>
-          <button 
-            className={activeTab === 'appointments' ? 'active' : ''}
-            onClick={() => setActiveTab('appointments')}
-          >
+          <button className={activeTab === 'appointments' ? 'active' : ''} onClick={() => setActiveTab('appointments')}>
             <i className="fas fa-calendar-check"></i> Appointments
           </button>
-          <button 
-            className={activeTab === 'profile' ? 'active' : ''}
-            onClick={() => setActiveTab('profile')}
-          >
+          <button className={activeTab === 'profile' ? 'active' : ''} onClick={() => setActiveTab('profile')}>
             <i className="fas fa-user"></i> Profile
           </button>
         </nav>
@@ -200,121 +147,105 @@ const PatientDashboardPage = () => {
               <h2><i className="fas fa-user-circle"></i> Personal Information</h2>
               
               <div className="profile-header">
-                <div className="profile-avatar-large-container">
-                  {patient.profileImage ? (
-                    <img src={patient.profileImage} alt={patient.name} className="profile-avatar-large" />
-                  ) : (
-                    <div className="profile-avatar-large-placeholder patient-placeholder">
-                      <i className="fas fa-user-circle"></i>
-                    </div>
-                  )}
-                  <label htmlFor="patient-image-upload-large" className="image-upload-label-large patient-upload">
-                    <i className="fas fa-camera"></i>
-                    <input
-                      type="file"
-                      id="patient-image-upload-large"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                      style={{ display: 'none' }}
-                    />
-                  </label>
+                <div className="profile-image-section">
+                  <ImageUpload 
+                    currentImage={patient?.profileImage}
+                    onImageChange={handleImageUpload}
+                    userType="patient"
+                  />
                 </div>
                 <div className="profile-title">
-                  <h3>{patient.name}</h3>
-                  <p>Patient ID: {patient.id}</p>
+                  <h3>{patient?.name}</h3>
+                  <p>Patient ID: {patient?.id}</p>
                 </div>
               </div>
 
               <div className="profile-sections">
-                {/* Personal Information */}
                 <div className="profile-section">
                   <h4><i className="fas fa-user"></i> Personal Information</h4>
                   <div className="profile-grid">
                     <div className="profile-item">
                       <span className="profile-label">Full Name</span>
-                      <span className="profile-value">{patient.name || 'Not provided'}</span>
+                      <span className="profile-value">{patient?.name || 'Not provided'}</span>
                     </div>
                     <div className="profile-item">
                       <span className="profile-label">Email</span>
-                      <span className="profile-value">{patient.email || 'Not provided'}</span>
+                      <span className="profile-value">{patient?.email || 'Not provided'}</span>
                     </div>
                     <div className="profile-item">
                       <span className="profile-label">Phone</span>
-                      <span className="profile-value">{patient.phone || 'Not provided'}</span>
+                      <span className="profile-value">{patient?.phone || 'Not provided'}</span>
                     </div>
                     <div className="profile-item">
                       <span className="profile-label">Date of Birth</span>
-                      <span className="profile-value">{patient.dateOfBirth || 'Not provided'}</span>
+                      <span className="profile-value">{patient?.dateOfBirth || 'Not provided'}</span>
                     </div>
                     <div className="profile-item">
                       <span className="profile-label">Gender</span>
-                      <span className="profile-value">{patient.gender || 'Not provided'}</span>
+                      <span className="profile-value">{patient?.gender || 'Not provided'}</span>
                     </div>
                   </div>
                 </div>
 
-                {/* Medical Information */}
                 <div className="profile-section">
                   <h4><i className="fas fa-notes-medical"></i> Medical Information</h4>
                   <div className="profile-grid">
                     <div className="profile-item">
                       <span className="profile-label">Blood Group</span>
-                      <span className="profile-value">{patient.bloodGroup || 'Not recorded'}</span>
+                      <span className="profile-value">{patient?.bloodGroup || 'Not recorded'}</span>
                     </div>
                     <div className="profile-item">
                       <span className="profile-label">Height</span>
-                      <span className="profile-value">{patient.height ? `${patient.height} cm` : 'Not recorded'}</span>
+                      <span className="profile-value">{patient?.height ? `${patient.height} cm` : 'Not recorded'}</span>
                     </div>
                     <div className="profile-item">
                       <span className="profile-label">Weight</span>
-                      <span className="profile-value">{patient.weight ? `${patient.weight} kg` : 'Not recorded'}</span>
+                      <span className="profile-value">{patient?.weight ? `${patient.weight} kg` : 'Not recorded'}</span>
                     </div>
                     <div className="profile-item">
                       <span className="profile-label">Allergies</span>
                       <span className="profile-value">
-                        {patient.allergies?.length > 0 
-                          ? (Array.isArray(patient.allergies) ? patient.allergies.join(', ') : patient.allergies)
-                          : 'None recorded'}
+                        {patient?.allergies?.length > 0 ? (Array.isArray(patient.allergies) ? patient.allergies.join(', ') : patient.allergies) : 'None recorded'}
                       </span>
                     </div>
                     <div className="profile-item">
                       <span className="profile-label">Current Medications</span>
                       <span className="profile-value">
-                        {patient.currentMedications?.length > 0
-                          ? (Array.isArray(patient.currentMedications) ? patient.currentMedications.join(', ') : patient.currentMedications)
-                          : 'None recorded'}
+                        {patient?.currentMedications?.length > 0 ? (Array.isArray(patient.currentMedications) ? patient.currentMedications.join(', ') : patient.currentMedications) : 'None recorded'}
                       </span>
                     </div>
                   </div>
                 </div>
 
-                {/* Contact Information */}
                 <div className="profile-section">
                   <h4><i className="fas fa-address-card"></i> Contact Information</h4>
                   <div className="profile-grid">
                     <div className="profile-item">
                       <span className="profile-label">Emergency Contact</span>
-                      <span className="profile-value">{patient.emergencyContact || 'Not provided'}</span>
+                      <span className="profile-value">{patient?.emergencyContact || 'Not provided'}</span>
+                    </div>
+                    <div className="profile-item">
+                      <span className="profile-label">Emergency Phone</span>
+                      <span className="profile-value">{patient?.emergencyPhone || 'Not provided'}</span>
                     </div>
                     <div className="profile-item">
                       <span className="profile-label">Address</span>
-                      <span className="profile-value">{patient.address || 'Not provided'}</span>
+                      <span className="profile-value">{patient?.address || 'Not provided'}</span>
                     </div>
                   </div>
                 </div>
 
-                {/* Insurance Information */}
-                {(patient.insuranceProvider || patient.insuranceId) && (
+                {(patient?.insuranceProvider || patient?.insuranceId) && (
                   <div className="profile-section">
                     <h4><i className="fas fa-shield-alt"></i> Insurance Information</h4>
                     <div className="profile-grid">
-                      {patient.insuranceProvider && (
+                      {patient?.insuranceProvider && (
                         <div className="profile-item">
                           <span className="profile-label">Insurance Provider</span>
                           <span className="profile-value">{patient.insuranceProvider}</span>
                         </div>
                       )}
-                      {patient.insuranceId && (
+                      {patient?.insuranceId && (
                         <div className="profile-item">
                           <span className="profile-label">Insurance ID</span>
                           <span className="profile-value">{patient.insuranceId}</span>
@@ -323,12 +254,6 @@ const PatientDashboardPage = () => {
                     </div>
                   </div>
                 )}
-              </div>
-
-              <div className="profile-actions">
-                <button className="btn btn-primary" onClick={() => alert('Edit profile functionality coming soon!')}>
-                  <i className="fas fa-edit"></i> Edit Profile
-                </button>
               </div>
             </div>
           )}

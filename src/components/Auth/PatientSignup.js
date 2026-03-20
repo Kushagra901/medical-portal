@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { patientSignup } from '../../services/patientAuth';
+import ImageUpload from '../Common/ImageUpload';
 import './PatientSignup.css';
 
 const PatientSignup = ({ onSwitchToLogin }) => {
@@ -13,7 +14,9 @@ const PatientSignup = ({ onSwitchToLogin }) => {
     password: '',
     confirmPassword: '',
     phone: '',
+    dateOfBirth: '',
     gender: '',
+    profileImage: null,
     
     // Medical Information
     bloodGroup: '',
@@ -58,6 +61,13 @@ const PatientSignup = ({ onSwitchToLogin }) => {
     setFormData(prev => ({
       ...prev,
       [name]: value
+    }));
+  };
+
+  const handleImageChange = (imageData) => {
+    setFormData(prev => ({
+      ...prev,
+      profileImage: imageData
     }));
   };
 
@@ -149,14 +159,12 @@ const PatientSignup = ({ onSwitchToLogin }) => {
     const newErrors = {};
     let isValid = true;
 
-    // Validate emergency contact name
     const contactError = validateField('emergencyContact', formData.emergencyContact, formData);
     if (contactError) {
       newErrors.emergencyContact = contactError;
       isValid = false;
     }
 
-    // Validate emergency phone if provided
     if (formData.emergencyPhone) {
       const phoneError = validateField('emergencyPhone', formData.emergencyPhone, formData);
       if (phoneError) {
@@ -195,7 +203,6 @@ const PatientSignup = ({ onSwitchToLogin }) => {
     setError('');
     
     try {
-      // Format phone with country code
       const fullPhone = `${countryCodes[selectedCountry].code}${formData.phone}`;
       const fullEmergencyPhone = formData.emergencyPhone 
         ? `${countryCodes[emergencyCountry].code}${formData.emergencyPhone}` 
@@ -218,7 +225,6 @@ const PatientSignup = ({ onSwitchToLogin }) => {
     }
   };
 
-  // Get error for a field
   const getFieldError = (field) => {
     return touched[field] ? errors[field] : '';
   };
@@ -233,7 +239,8 @@ const PatientSignup = ({ onSwitchToLogin }) => {
           month: 'long', 
           day: 'numeric',
           hour: '2-digit',
-          minute: '2-digit'
+          minute: '2-digit',
+          hour12: true
         })}</p>
       </div>
 
@@ -244,7 +251,6 @@ const PatientSignup = ({ onSwitchToLogin }) => {
         </div>
       )}
 
-      {/* Professional Progress Steps */}
       <div className="progress-steps professional">
         <div className={`progress-step ${step >= 1 ? 'active' : ''} ${step > 1 ? 'completed' : ''}`}>
           <div className="step-indicator">{step > 1 ? '✓' : '1'}</div>
@@ -273,7 +279,6 @@ const PatientSignup = ({ onSwitchToLogin }) => {
             </div>
             
             <div className="form-grid">
-              {/* Full Name - Required */}
               <div className="form-group full-width required">
                 <label>Full Name <span className="required-star">*</span></label>
                 <input
@@ -290,7 +295,6 @@ const PatientSignup = ({ onSwitchToLogin }) => {
                 )}
               </div>
 
-              {/* Email - Required with validation */}
               <div className="form-group full-width required">
                 <label>Email Address <span className="required-star">*</span></label>
                 <input
@@ -307,7 +311,6 @@ const PatientSignup = ({ onSwitchToLogin }) => {
                 )}
               </div>
 
-              {/* Password - Required with strong validation */}
               <div className="form-group half-width required">
                 <label>Password <span className="required-star">*</span></label>
                 <input
@@ -345,7 +348,6 @@ const PatientSignup = ({ onSwitchToLogin }) => {
                 )}
               </div>
 
-              {/* Phone with Country Code - Required */}
               <div className="form-group phone-group required full-width">
                 <label>PHONE NUMBER <span className="required-star">*</span></label>
                 <div className="phone-input-container">
@@ -375,78 +377,45 @@ const PatientSignup = ({ onSwitchToLogin }) => {
                 )}
               </div>
 
-              {/* Gender - Professional Design */}
-              <div className="form-group full-width required">
-                <label>GENDER <span className="required-star">*</span></label>
-                <div className="gender-selector">
-                  <div className="gender-option-card">
-                    <input 
-                      type="radio" 
-                      name="gender" 
-                      id="genderMale"
-                      value="Male" 
-                      checked={formData.gender === 'Male'} 
-                      onChange={handleChange}
-                      onBlur={() => handleBlur('gender')}
-                    />
-                    <label htmlFor="genderMale" className="gender-card-label">
-                      <div className="gender-icon">
-                        <i className="fas fa-mars"></i>
-                      </div>
-                      <span className="gender-text">Male</span>
-                    </label>
-                  </div>
+              <div className="form-group third-width">
+                <label>Date of Birth</label>
+                <input
+                  type="date"
+                  name="dateOfBirth"
+                  value={formData.dateOfBirth}
+                  onChange={handleChange}
+                />
+              </div>
 
-                  <div className="gender-option-card">
-                    <input 
-                      type="radio" 
-                      name="gender" 
-                      id="genderFemale"
-                      value="Female" 
-                      checked={formData.gender === 'Female'} 
-                      onChange={handleChange}
-                      onBlur={() => handleBlur('gender')}
-                    />
-                    <label htmlFor="genderFemale" className="gender-card-label">
-                      <div className="gender-icon">
-                        <i className="fas fa-venus"></i>
-                      </div>
-                      <span className="gender-text">Female</span>
-                    </label>
-                  </div>
-
-                  <div className="gender-option-card">
-                    <input 
-                      type="radio" 
-                      name="gender" 
-                      id="genderOther"
-                      value="Other" 
-                      checked={formData.gender === 'Other'} 
-                      onChange={handleChange}
-                      onBlur={() => handleBlur('gender')}
-                    />
-                    <label htmlFor="genderOther" className="gender-card-label">
-                      <div className="gender-icon">
-                        <i className="fas fa-genderless"></i>
-                      </div>
-                      <span className="gender-text">Other</span>
-                    </label>
-                  </div>
-                </div>
+              <div className="form-group third-width required">
+                <label>Gender <span className="required-star">*</span></label>
+                <select name="gender" value={formData.gender} onChange={handleChange} onBlur={() => handleBlur('gender')} className={getFieldError('gender') ? 'error' : ''}>
+                  <option value="">Select Gender</option>
+                  {genders.map(gender => (
+                    <option key={gender} value={gender}>{gender}</option>
+                  ))}
+                </select>
                 {getFieldError('gender') && (
-                  <span className="error-message">
-                    <i className="fas fa-exclamation-circle"></i> {getFieldError('gender')}
-                  </span>
+                  <span className="error-message"><i className="fas fa-exclamation-circle"></i> {getFieldError('gender')}</span>
                 )}
+              </div>
+
+              <div className="form-group third-width">
+                {/* Empty for spacing */}
+              </div>
+
+              <div className="form-group full-width">
+                <label>Profile Photo</label>
+                <ImageUpload 
+                  currentImage={formData.profileImage}
+                  onImageChange={handleImageChange}
+                  userType="patient"
+                />
               </div>
             </div>
 
-            {/* Form Actions for Step 1 */}
             <div className="form-actions">
-              <button 
-                type="submit" 
-                className="btn btn-primary next-btn"
-              >
+              <button type="submit" className="btn btn-primary next-btn">
                 Next Step <i className="fas fa-arrow-right"></i>
               </button>
             </div>
@@ -462,14 +431,9 @@ const PatientSignup = ({ onSwitchToLogin }) => {
             </div>
 
             <div className="form-grid">
-              {/* Blood Group - Optional */}
               <div className="form-group third-width">
                 <label>Blood Group</label>
-                <select 
-                  name="bloodGroup" 
-                  value={formData.bloodGroup} 
-                  onChange={handleChange}
-                >
+                <select name="bloodGroup" value={formData.bloodGroup} onChange={handleChange}>
                   <option value="">Select Blood Group</option>
                   {bloodGroups.map(group => (
                     <option key={group} value={group}>{group}</option>
@@ -479,114 +443,53 @@ const PatientSignup = ({ onSwitchToLogin }) => {
 
               <div className="form-group third-width">
                 <label>Height (cm)</label>
-                <input
-                  type="number"
-                  name="height"
-                  value={formData.height}
-                  onChange={handleChange}
-                  placeholder="e.g., 175"
-                  min="1"
-                  max="300"
-                />
+                <input type="number" name="height" value={formData.height} onChange={handleChange} placeholder="e.g., 175" min="1" max="300" />
               </div>
 
               <div className="form-group third-width">
                 <label>Weight (kg)</label>
-                <input
-                  type="number"
-                  name="weight"
-                  value={formData.weight}
-                  onChange={handleChange}
-                  placeholder="e.g., 70"
-                  min="1"
-                  max="500"
-                />
+                <input type="number" name="weight" value={formData.weight} onChange={handleChange} placeholder="e.g., 70" min="1" max="500" />
               </div>
 
               <div className="form-group full-width">
                 <label>Known Allergies</label>
-                <textarea
-                  name="allergies"
-                  value={formData.allergies}
-                  onChange={handleChange}
-                  placeholder="List any allergies (e.g., Penicillin, Peanuts)"
-                  rows="2"
-                />
+                <textarea name="allergies" value={formData.allergies} onChange={handleChange} placeholder="List any allergies (e.g., Penicillin, Peanuts)" rows="2" />
               </div>
 
               <div className="form-group full-width">
                 <label>Current Medications</label>
-                <textarea
-                  name="currentMedications"
-                  value={formData.currentMedications}
-                  onChange={handleChange}
-                  placeholder="List current medications with dosage"
-                  rows="2"
-                />
+                <textarea name="currentMedications" value={formData.currentMedications} onChange={handleChange} placeholder="List current medications with dosage" rows="2" />
               </div>
 
-              {/* Emergency Contact - Required */}
               <div className="form-group half-width required">
                 <label>EMERGENCY CONTACT NAME <span className="required-star">*</span></label>
-                <input
-                  type="text"
-                  name="emergencyContact"
-                  value={formData.emergencyContact}
-                  onChange={handleChange}
-                  onBlur={() => handleBlur('emergencyContact')}
-                  placeholder="Full name"
-                  className={getFieldError('emergencyContact') ? 'error' : ''}
-                />
+                <input type="text" name="emergencyContact" value={formData.emergencyContact} onChange={handleChange} onBlur={() => handleBlur('emergencyContact')} placeholder="Full name" className={getFieldError('emergencyContact') ? 'error' : ''} />
                 {getFieldError('emergencyContact') && (
-                  <span className="error-message">
-                    <i className="fas fa-exclamation-circle"></i> {getFieldError('emergencyContact')}
-                  </span>
+                  <span className="error-message"><i className="fas fa-exclamation-circle"></i> {getFieldError('emergencyContact')}</span>
                 )}
               </div>
 
-              {/* Emergency Phone - Optional */}
               <div className="form-group half-width">
                 <label>EMERGENCY PHONE (OPTIONAL)</label>
                 <div className="phone-input-container">
-                  <select 
-                    value={emergencyCountry}
-                    onChange={(e) => setEmergencyCountry(e.target.value)}
-                    className="country-select"
-                  >
+                  <select value={emergencyCountry} onChange={(e) => setEmergencyCountry(e.target.value)} className="country-select">
                     {Object.entries(countryCodes).map(([key, { code, name }]) => (
                       <option key={key} value={key}>{code}</option>
                     ))}
                   </select>
-                  <input
-                    type="tel"
-                    name="emergencyPhone"
-                    value={formData.emergencyPhone}
-                    onChange={handleChange}
-                    onBlur={() => handleBlur('emergencyPhone')}
-                    placeholder="Emergency Number"
-                    className={getFieldError('emergencyPhone') ? 'error' : ''}
-                  />
+                  <input type="tel" name="emergencyPhone" value={formData.emergencyPhone} onChange={handleChange} onBlur={() => handleBlur('emergencyPhone')} placeholder="Emergency Number" className={getFieldError('emergencyPhone') ? 'error' : ''} />
                 </div>
                 {getFieldError('emergencyPhone') && (
-                  <span className="error-message">
-                    <i className="fas fa-exclamation-circle"></i> {getFieldError('emergencyPhone')}
-                  </span>
+                  <span className="error-message"><i className="fas fa-exclamation-circle"></i> {getFieldError('emergencyPhone')}</span>
                 )}
               </div>
 
               <div className="form-group full-width">
                 <label>Address</label>
-                <textarea
-                  name="address"
-                  value={formData.address}
-                  onChange={handleChange}
-                  placeholder="Your full address"
-                  rows="2"
-                />
+                <textarea name="address" value={formData.address} onChange={handleChange} placeholder="Your full address" rows="2" />
               </div>
             </div>
 
-            {/* Insurance Information Section - Optional */}
             <div className="insurance-section">
               <div className="insurance-header">
                 <i className="fas fa-shield-alt"></i>
@@ -596,39 +499,21 @@ const PatientSignup = ({ onSwitchToLogin }) => {
               <div className="form-grid">
                 <div className="form-group half-width">
                   <label>Insurance Provider</label>
-                  <input
-                    type="text"
-                    name="insuranceProvider"
-                    value={formData.insuranceProvider}
-                    onChange={handleChange}
-                    placeholder="e.g., Blue Cross"
-                  />
+                  <input type="text" name="insuranceProvider" value={formData.insuranceProvider} onChange={handleChange} placeholder="e.g., Blue Cross" />
                 </div>
-
                 <div className="form-group half-width">
                   <label>Insurance ID</label>
-                  <input
-                    type="text"
-                    name="insuranceId"
-                    value={formData.insuranceId}
-                    onChange={handleChange}
-                    placeholder="Policy number"
-                  />
+                  <input type="text" name="insuranceId" value={formData.insuranceId} onChange={handleChange} placeholder="Policy number" />
                 </div>
               </div>
             </div>
 
-            {/* Form Actions for Step 2 */}
             <div className="form-actions">
               <button type="button" className="btn btn-outline" onClick={handlePrevious}>
                 <i className="fas fa-arrow-left"></i> Previous
               </button>
               <button type="submit" className="btn btn-success submit-btn" disabled={loading}>
-                {loading ? (
-                  <><i className="fas fa-spinner fa-spin"></i> Registering...</>
-                ) : (
-                  <><i className="fas fa-check-circle"></i> Complete Registration</>
-                )}
+                {loading ? <><i className="fas fa-spinner fa-spin"></i> Registering...</> : <><i className="fas fa-check-circle"></i> Complete Registration</>}
               </button>
             </div>
           </div>
