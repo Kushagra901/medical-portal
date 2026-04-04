@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import * as XLSX from 'xlsx';
 import './PatientDB.css';
 
 const PatientDB = () => {
@@ -33,15 +36,66 @@ const PatientDB = () => {
         setShowModal(false);
     };
 
+    const handleExportPDF = () => {
+        const doc = new jsPDF();
+        doc.text('Patient Records', 14, 15);
+        
+        const tableColumn = ["Patient ID", "Patient Name", "Last Diagnosis", "Last Medicine", "Last Visit"];
+        const tableRows = [];
+
+        patients.forEach(patient => {
+            const patientData = [
+                patient.id,
+                patient.name,
+                patient.diagnosis,
+                patient.medicine,
+                patient.visit
+            ];
+            tableRows.push(patientData);
+        });
+
+        autoTable(doc, {
+            head: [tableColumn],
+            body: tableRows,
+            startY: 20,
+            theme: 'grid',
+            headStyles: { fillColor: [33, 150, 243] }
+        });
+
+        doc.save(`Patient_Records_${new Date().toISOString().split('T')[0]}.pdf`);
+    };
+
+    const handleExportExcel = () => {
+        const exportData = patients.map(p => ({
+            "Patient ID": p.id,
+            "Patient Name": p.name,
+            "Last Diagnosis": p.diagnosis,
+            "Last Medicine": p.medicine,
+            "Last Visit": p.visit
+        }));
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Patients");
+        XLSX.writeFile(workbook, `Patient_Records_${new Date().toISOString().split('T')[0]}.xlsx`);
+    };
+
     return (
         <section id="patient-db" className="section">
             <h2><i className="fas fa-users"></i> Patient Database</h2>
             <div className="card">
                 <div className="card-header">
                     <h3>Patient Records</h3>
-                    <button className="btn btn-success" onClick={() => setShowModal(true)}>
-                        <i className="fas fa-user-plus"></i> Add Patient
-                    </button>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                        <button className="btn btn-secondary" onClick={handleExportPDF}>
+                            <i className="fas fa-file-pdf"></i> Export PDF
+                        </button>
+                        <button className="btn btn-secondary" onClick={handleExportExcel}>
+                            <i className="fas fa-file-excel"></i> Export Excel
+                        </button>
+                        <button className="btn btn-success" onClick={() => setShowModal(true)}>
+                            <i className="fas fa-user-plus"></i> Add Patient
+                        </button>
+                    </div>
                 </div>
                 <div className="table-container">
                     <table>

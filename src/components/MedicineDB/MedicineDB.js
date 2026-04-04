@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import * as XLSX from 'xlsx';
 import './MedicineDB.css';
 
 const MedicineDB = () => {
@@ -41,6 +44,45 @@ const MedicineDB = () => {
         }
     };
 
+    const handleExportPDF = () => {
+        const doc = new jsPDF();
+        doc.text('Medicine Database', 14, 15);
+        
+        const tableColumn = ["Medicine Name", "Use Case / Purpose", "Dosage"];
+        const tableRows = [];
+
+        medicines.forEach(medicine => {
+            const medicineData = [
+                medicine.name,
+                medicine.use,
+                medicine.dosage
+            ];
+            tableRows.push(medicineData);
+        });
+
+        autoTable(doc, {
+            head: [tableColumn],
+            body: tableRows,
+            startY: 20,
+            theme: 'grid',
+            headStyles: { fillColor: [76, 175, 80] }
+        });
+
+        doc.save(`Medicine_Database_${new Date().toISOString().split('T')[0]}.pdf`);
+    };
+
+    const handleExportExcel = () => {
+        const exportData = medicines.map(m => ({
+            "Medicine Name": m.name,
+            "Use Case / Purpose": m.use,
+            "Dosage": m.dosage
+        }));
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Medicines");
+        XLSX.writeFile(workbook, `Medicine_Database_${new Date().toISOString().split('T')[0]}.xlsx`);
+    };
+
     return (
         <section id="medicine-db" className="section">
             <h2><i className="fas fa-database"></i> Medicine Database</h2>
@@ -56,9 +98,17 @@ const MedicineDB = () => {
                         />
                         <i className="fas fa-search"></i>
                     </div>
-                    <button className="btn btn-primary" onClick={() => setShowModal(true)}>
-                        <i className="fas fa-plus"></i> Add Medicine
-                    </button>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                        <button className="btn btn-secondary" onClick={handleExportPDF}>
+                            <i className="fas fa-file-pdf"></i> PDF
+                        </button>
+                        <button className="btn btn-secondary" onClick={handleExportExcel}>
+                            <i className="fas fa-file-excel"></i> Excel
+                        </button>
+                        <button className="btn btn-primary" onClick={() => setShowModal(true)}>
+                            <i className="fas fa-plus"></i> Add
+                        </button>
+                    </div>
                 </div>
                 <div className="table-container">
                     <table>

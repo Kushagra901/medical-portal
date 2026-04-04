@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getPatients } from '../../services/patientService';
 import { getMedicines, createMedicine } from '../../services/medicineService';
 import { createPrescription } from '../../services/prescriptionService';
+import jsPDF from 'jspdf';
 import './PrescriptionGenerator.css';
 
 const PrescriptionGenerator = () => {
@@ -298,6 +299,106 @@ const PrescriptionGenerator = () => {
         }
     };
 
+    const handleDownloadPDF = async () => {
+        if (!prescription.patientId) {
+            alert('Please select a patient');
+            return;
+        }
+
+        const patient = patients.find(p => p.id === prescription.patientId);
+        const doc = new jsPDF();
+        
+        // Header
+        doc.setFontSize(22);
+        doc.setTextColor(37, 99, 235); // Blue color
+        doc.text('MediCare Clinic', 105, 20, { align: 'center' });
+        
+        doc.setFontSize(10);
+        doc.setTextColor(100, 100, 100);
+        doc.text('123 Health Street, Medical City | Phone: (123) 456-7890', 105, 28, { align: 'center' });
+        
+        // Draw line
+        doc.setDrawColor(37, 99, 235);
+        doc.setLineWidth(0.5);
+        doc.line(20, 35, 190, 35);
+        
+        // Patient Info Background
+        doc.setFillColor(248, 250, 252);
+        doc.roundedRect(20, 45, 170, 50, 3, 3, 'F');
+        
+        doc.setFontSize(14);
+        doc.setTextColor(0, 0, 0);
+        doc.text('Prescription Details', 25, 55);
+        
+        doc.setFontSize(11);
+        doc.text(`Date: ${new Date().toLocaleDateString()}`, 25, 65);
+        doc.text(`Patient: ${patient?.name || ''} (${patient?.id || ''})`, 25, 73);
+        
+        let yPos = 73;
+        if (prescription.age) { doc.text(`Age: ${prescription.age}`, 120, yPos); }
+        yPos += 8;
+        if (prescription.gender) { doc.text(`Gender: ${prescription.gender}`, 25, yPos); }
+        if (prescription.weight) { doc.text(`Weight: ${prescription.weight}`, 120, yPos); }
+        yPos += 8;
+        if (prescription.diagnosis) { doc.text(`Diagnosis: ${prescription.diagnosis}`, 25, yPos); }
+
+        yPos += 20;
+        doc.setFontSize(14);
+        doc.setTextColor(37, 99, 235);
+        doc.text('Medications:', 20, yPos);
+        yPos += 10;
+        
+        doc.setFontSize(11);
+        doc.setTextColor(0, 0, 0);
+        
+        prescription.medicines.forEach((med, index) => {
+            if (yPos > 250) {
+                doc.addPage();
+                yPos = 20;
+            }
+            
+            doc.setFont(undefined, 'bold');
+            doc.text(`${index + 1}. ${med.name}`, 25, yPos);
+            doc.setFont(undefined, 'normal');
+            doc.text(`- ${med.dosage}`, 25 + doc.getTextWidth(`${index + 1}. ${med.name} `), yPos);
+            
+            yPos += 7;
+            if (med.duration) {
+                doc.text(`Duration: ${med.duration}`, 30, yPos);
+                yPos += 7;
+            }
+            if (med.instructions) {
+                doc.text(`Instructions: ${med.instructions}`, 30, yPos);
+                yPos += 7;
+            }
+            yPos += 3; // spacing between meds
+        });
+        
+        if (prescription.notes) {
+            yPos += 10;
+            doc.setFontSize(14);
+            doc.setTextColor(37, 99, 235);
+            doc.text('Additional Notes:', 20, yPos);
+            yPos += 10;
+            
+            doc.setFontSize(11);
+            doc.setTextColor(0, 0, 0);
+            const splitNotes = doc.splitTextToSize(prescription.notes, 160);
+            doc.text(splitNotes, 25, yPos);
+            yPos += splitNotes.length * 6;
+        }
+        
+        // Footer
+        const finalY = (yPos > 240) ? 280 : 260;
+        doc.text('___________________', 140, finalY);
+        doc.setFont(undefined, 'bold');
+        doc.text('Dr. John Smith', 145, finalY + 8);
+        doc.setFont(undefined, 'normal');
+        doc.text('MBBS, MD', 150, finalY + 14);
+        
+        doc.save(`Prescription_${patient?.name || 'Patient'}_${new Date().toISOString().split('T')[0]}.pdf`);
+    };
+
     const handleClearPrescription = () => {
         setPrescription({
             patientId: '',
@@ -561,12 +662,21 @@ const PrescriptionGenerator = () => {
                             type="button"
                             disabled={loading}
                         >
-                            {loading ? <i className="fas fa-spinner fa-spin"></i> : <i className="fas fa-file-pdf"></i>} Generate Prescription
+                            {loading ? <i className="fas fa-spinner fa-spin"></i> : <i className="fas fa-print"></i>} Print
+                        </button>
+                        <button 
+                            className="btn btn-success"
+                            onClick={handleDownloadPDF}
+                            type="button"
+                            style={{ marginLeft: '10px' }}
+                        >
+                            <i className="fas fa-file-pdf"></i> Download PDF
                         </button>
                         <button 
                             className="btn btn-outline"
                             onClick={handleClearPrescription}
                             type="button"
+                            style={{ marginLeft: '10px' }}
                         >
                             <i className="fas fa-redo"></i> Clear
                         </button>

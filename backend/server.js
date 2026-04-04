@@ -14,6 +14,7 @@ app.use('/api/doctors', require('./routes/doctorRoutes'));
 app.use('/api/patients', require('./routes/patientRoutes'));
 app.use('/api/medicines', require('./routes/medicineRoutes'));
 app.use('/api/prescriptions', require('./routes/prescriptionRoutes'));
+app.use('/api/export', require('./routes/exportRoutes'));
 
 app.get('/', (req, res) => {
   res.json({ message: 'Medical Portal API is running', database: process.env.MONGODB_URI });

@@ -7,23 +7,41 @@ const ImageUpload = ({ currentImage, onImageChange, userType = 'doctor' }) => {
   const [showCropModal, setShowCropModal] = useState(false);
   const [zoom, setZoom] = useState(1);
   const [rotation, setRotation] = useState(0);
+  const [fileName, setFileName] = useState('');
+  const [fileSize, setFileSize] = useState('');
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
   
-  // Use refs for drag functionality (no state updates during drag)
-  const positionRef = useRef({ x: 0, y: 0 });
-  const isDraggingRef = useRef(false);
-  const dragStartRef = useRef({ x: 0, y: 0 });
-  const imageRef = useRef(null);
+  // Use refs for drag functionality
+  const dragRef = useRef({
+    isDragging: false,
+    startX: 0,
+    startY: 0,
+    currentX: 0,
+    currentY: 0,
+    offsetX: 0,
+    offsetY: 0
+  });
+  
   const containerRef = useRef(null);
   const fileInputRef = useRef(null);
-
-  // Force update function to update component when needed
+  
+  // Force update function
   const [, forceUpdate] = useState({});
+
+  const formatFileSize = (bytes) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
 
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
     if (file) {
       if (!file.type.startsWith('image/')) {
-        alert('Please select an image file');
+        alert('Please select an image file (JPG, PNG, GIF)');
         return;
       }
 
@@ -32,108 +50,126 @@ const ImageUpload = ({ currentImage, onImageChange, userType = 'doctor' }) => {
         return;
       }
 
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreview(reader.result);
-        setShowCropModal(true);
-        setZoom(1);
-        setRotation(0);
-        positionRef.current = { x: 0, y: 0 };
-      };
-      reader.readAsDataURL(file);
+      setFileName(file.name);
+      setFileSize(formatFileSize(file.size));
+      setIsUploading(true);
+      
+      // Simulate upload progress
+      let progress = 0;
+      const interval = setInterval(() => {
+        progress += 10;
+        setUploadProgress(progress);
+        if (progress >= 100) {
+          clearInterval(interval);
+          setIsUploading(false);
+          
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            setPreview(reader.result);
+            setShowCropModal(true);
+            setZoom(1);
+            setRotation(0);
+            dragRef.current = {
+              ...dragRef.current,
+              currentX: 0,
+              currentY: 0,
+              offsetX: 0,
+              offsetY: 0,
+              isDragging: false
+            };
+            forceUpdate({});
+          };
+          reader.readAsDataURL(file);
+        }
+      }, 50);
     }
   };
 
   const handleZoomIn = () => {
     setZoom(prev => Math.min(prev + 0.1, 3));
-    positionRef.current = { x: 0, y: 0 }; // Reset position when zooming
+    dragRef.current.currentX = 0;
+    dragRef.current.currentY = 0;
+    forceUpdate({});
   };
 
   const handleZoomOut = () => {
     setZoom(prev => Math.max(prev - 0.1, 0.5));
-    positionRef.current = { x: 0, y: 0 }; // Reset position when zooming
+    dragRef.current.currentX = 0;
+    dragRef.current.currentY = 0;
+    forceUpdate({});
   };
 
   const handleRotateLeft = () => {
     setRotation(prev => prev - 90);
-    positionRef.current = { x: 0, y: 0 }; // Reset position when rotating
+    dragRef.current.currentX = 0;
+    dragRef.current.currentY = 0;
+    forceUpdate({});
   };
 
   const handleRotateRight = () => {
     setRotation(prev => prev + 90);
-    positionRef.current = { x: 0, y: 0 }; // Reset position when rotating
+    dragRef.current.currentX = 0;
+    dragRef.current.currentY = 0;
+    forceUpdate({});
   };
 
   const handleReset = () => {
     setZoom(1);
     setRotation(0);
-    positionRef.current = { x: 0, y: 0 };
-    forceUpdate({}); // Force re-render
+    dragRef.current.currentX = 0;
+    dragRef.current.currentY = 0;
+    forceUpdate({});
   };
 
-  // Mouse event handlers for dragging
   const handleMouseDown = (e) => {
     e.preventDefault();
     e.stopPropagation();
     
-    isDraggingRef.current = true;
-    dragStartRef.current = {
-      x: e.clientX - positionRef.current.x,
-      y: e.clientY - positionRef.current.y
-    };
-    
-    // Add global event listeners
-    document.addEventListener('mousemove', handleGlobalMouseMove);
-    document.addEventListener('mouseup', handleGlobalMouseUp);
+    dragRef.current.isDragging = true;
+    dragRef.current.startX = e.clientX;
+    dragRef.current.startY = e.clientY;
+    dragRef.current.offsetX = dragRef.current.currentX;
+    dragRef.current.offsetY = dragRef.current.currentY;
   };
 
-  const handleGlobalMouseMove = (e) => {
-    if (!isDraggingRef.current) return;
+  const handleMouseMove = (e) => {
+    if (!dragRef.current.isDragging) return;
     
     e.preventDefault();
     e.stopPropagation();
     
-    // Calculate new position
-    const newX = e.clientX - dragStartRef.current.x;
-    const newY = e.clientY - dragStartRef.current.y;
+    const deltaX = e.clientX - dragRef.current.startX;
+    const deltaY = e.clientY - dragRef.current.startY;
     
-    // Get container dimensions for boundaries
     const container = containerRef.current;
     if (!container) return;
     
     const containerRect = container.getBoundingClientRect();
+    const maxDragX = (containerRect.width * (zoom - 0.5)) / 2;
+    const maxDragY = (containerRect.height * (zoom - 0.5)) / 2;
     
-    // Calculate boundaries based on zoom level
-    // This ensures the image doesn't go outside the crop circle
-    const maxDrag = 100 * (zoom - 0.5); // Adjust this value based on your needs
+    let newX = dragRef.current.offsetX + deltaX;
+    let newY = dragRef.current.offsetY + deltaY;
     
-    // Apply boundaries
-    positionRef.current = {
-      x: Math.max(-maxDrag, Math.min(maxDrag, newX)),
-      y: Math.max(-maxDrag, Math.min(maxDrag, newY))
-    };
+    newX = Math.max(-maxDragX, Math.min(maxDragX, newX));
+    newY = Math.max(-maxDragY, Math.min(maxDragY, newY));
     
-    // Force re-render to update position
+    dragRef.current.currentX = newX;
+    dragRef.current.currentY = newY;
+    
     forceUpdate({});
   };
 
-  const handleGlobalMouseUp = () => {
-    if (isDraggingRef.current) {
-      isDraggingRef.current = false;
-      
-      // Remove global event listeners
-      document.removeEventListener('mousemove', handleGlobalMouseMove);
-      document.removeEventListener('mouseup', handleGlobalMouseUp);
-    }
+  const handleMouseUp = (e) => {
+    if (!dragRef.current.isDragging) return;
+    e.preventDefault();
+    e.stopPropagation();
+    dragRef.current.isDragging = false;
   };
 
-  // Clean up event listeners on unmount
-  useEffect(() => {
-    return () => {
-      document.removeEventListener('mousemove', handleGlobalMouseMove);
-      document.removeEventListener('mouseup', handleGlobalMouseUp);
-    };
-  }, []);
+  const handleMouseLeave = () => {
+    dragRef.current.isDragging = false;
+  };
 
   const handleSaveImage = () => {
     const canvas = document.createElement('canvas');
@@ -142,40 +178,30 @@ const ImageUpload = ({ currentImage, onImageChange, userType = 'doctor' }) => {
     img.src = preview;
 
     img.onload = () => {
-      // Set canvas size to 300x300 (square)
       canvas.width = 300;
       canvas.height = 300;
 
-      // Clear canvas with white background
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Save context state
       ctx.save();
-
-      // Move to center for rotation
       ctx.translate(canvas.width / 2, canvas.height / 2);
       ctx.rotate((rotation * Math.PI) / 180);
       
-      // Calculate scaled dimensions
       const scaledWidth = img.width * zoom;
       const scaledHeight = img.height * zoom;
       
-      // Apply position offset
-      const drawX = -scaledWidth / 2 + positionRef.current.x;
-      const drawY = -scaledHeight / 2 + positionRef.current.y;
+      const drawX = -scaledWidth / 2 + dragRef.current.currentX;
+      const drawY = -scaledHeight / 2 + dragRef.current.currentY;
 
-      // Draw image
       ctx.drawImage(img, drawX, drawY, scaledWidth, scaledHeight);
-
-      // Restore context
       ctx.restore();
 
-      // Get final image
       const finalImage = canvas.toDataURL('image/jpeg', 0.9);
       setImage(finalImage);
       onImageChange(finalImage);
       setShowCropModal(false);
+      setUploadProgress(0);
     };
   };
 
@@ -183,6 +209,8 @@ const ImageUpload = ({ currentImage, onImageChange, userType = 'doctor' }) => {
     setImage(null);
     setPreview(null);
     onImageChange(null);
+    setFileName('');
+    setFileSize('');
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -190,6 +218,14 @@ const ImageUpload = ({ currentImage, onImageChange, userType = 'doctor' }) => {
 
   const triggerFileInput = () => {
     fileInputRef.current?.click();
+  };
+
+  const getImageStyle = () => {
+    return {
+      transform: `translate(-50%, -50%) scale(${zoom}) rotate(${rotation}deg) translate(${dragRef.current.currentX}px, ${dragRef.current.currentY}px)`,
+      cursor: dragRef.current.isDragging ? 'grabbing' : 'grab',
+      transition: dragRef.current.isDragging ? 'none' : 'transform 0.1s ease'
+    };
   };
 
   return (
@@ -209,9 +245,11 @@ const ImageUpload = ({ currentImage, onImageChange, userType = 'doctor' }) => {
           </div>
         ) : (
           <div className="upload-placeholder" onClick={triggerFileInput}>
-            <i className="fas fa-camera"></i>
-            <p>Upload Profile Photo</p>
-            <span className="upload-hint">Click to browse (Max 5MB)</span>
+            <div className="upload-icon">
+              <i className="fas fa-cloud-upload-alt"></i>
+            </div>
+            <p>Click to upload profile photo</p>
+            <span className="upload-hint">JPG, PNG or GIF (Max 5MB)</span>
           </div>
         )}
         <input
@@ -223,8 +261,22 @@ const ImageUpload = ({ currentImage, onImageChange, userType = 'doctor' }) => {
         />
       </div>
 
+      {/* Upload Progress Modal */}
+      {isUploading && (
+        <div className="upload-progress-modal">
+          <div className="upload-progress-content">
+            <i className="fas fa-spinner fa-spin"></i>
+            <h4>Uploading {fileName}</h4>
+            <div className="progress-bar">
+              <div className="progress-fill" style={{ width: `${uploadProgress}%` }}></div>
+            </div>
+            <p>{uploadProgress}% - {fileSize}</p>
+          </div>
+        </div>
+      )}
+
       {showCropModal && (
-        <div className="crop-modal-overlay">
+        <div className="crop-modal-overlay" onMouseLeave={handleMouseLeave}>
           <div className="crop-modal">
             <div className="crop-modal-header">
               <h3><i className="fas fa-crop-alt"></i> Adjust Image</h3>
@@ -232,22 +284,27 @@ const ImageUpload = ({ currentImage, onImageChange, userType = 'doctor' }) => {
             </div>
 
             <div className="crop-modal-body">
+              <div className="file-info">
+                <i className="fas fa-image"></i>
+                <span className="file-name">{fileName}</span>
+                <span className="file-size">{fileSize}</span>
+              </div>
+
               <div 
                 className="image-editor-container"
                 ref={containerRef}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+                onMouseLeave={handleMouseLeave}
               >
                 <div 
                   className="image-editor"
-                  style={{
-                    transform: `translate(-50%, -50%) scale(${zoom}) rotate(${rotation}deg) translate(${positionRef.current.x}px, ${positionRef.current.y}px)`,
-                    cursor: isDraggingRef.current ? 'grabbing' : 'grab'
-                  }}
+                  style={getImageStyle()}
                   onMouseDown={handleMouseDown}
                 >
                   <img 
                     src={preview} 
                     alt="Preview" 
-                    ref={imageRef}
                     draggable="false"
                     style={{
                       width: 'auto',
@@ -303,7 +360,7 @@ const ImageUpload = ({ currentImage, onImageChange, userType = 'doctor' }) => {
 
               <div className="drag-instructions">
                 <i className="fas fa-arrows-alt"></i>
-                <span>Drag image to reposition</span>
+                <span>Click and drag image to reposition</span>
               </div>
             </div>
 
@@ -312,7 +369,7 @@ const ImageUpload = ({ currentImage, onImageChange, userType = 'doctor' }) => {
                 Cancel
               </button>
               <button type="button" className="btn btn-primary" onClick={handleSaveImage}>
-                Apply Changes
+                <i className="fas fa-check"></i> Apply Changes
               </button>
             </div>
           </div>
@@ -322,4 +379,4 @@ const ImageUpload = ({ currentImage, onImageChange, userType = 'doctor' }) => {
   );
 };
 
-export default ImageUpload;  
+export default ImageUpload;

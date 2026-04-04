@@ -1,4 +1,5 @@
 const Doctor = require('../models/Doctor');
+const Patient = require('../models/Patient');
 const jwt = require('jsonwebtoken');
 
 // Generate JWT Token
@@ -28,14 +29,13 @@ exports.registerDoctor = async (req, res) => {
       });
     }
 
-    // Create doctor with ALL fields
+    // Create doctor
     const doctor = await Doctor.create(req.body);
-    console.log('Doctor created:', doctor);
+    console.log('Doctor created:', doctor._id);
 
     // Generate token
     const token = generateToken(doctor._id, 'doctor');
 
-    // Return ALL doctor data
     res.status(201).json({
       success: true,
       token,
@@ -74,21 +74,33 @@ exports.registerDoctor = async (req, res) => {
 exports.loginDoctor = async (req, res) => {
   try {
     const { email, password } = req.body;
+    console.log('Login attempt for:', email);
+
+    // Check if email and password are provided
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide email and password'
+      });
+    }
 
     // Check for doctor
     const doctor = await Doctor.findOne({ email }).select('+password');
 
     if (!doctor) {
+      console.log('Doctor not found:', email);
       return res.status(401).json({
         success: false,
         message: 'Invalid credentials'
       });
     }
 
-    // Check password
+    // Check password using matchPassword method
     const isMatch = await doctor.matchPassword(password);
+    console.log('Password match result:', isMatch);
 
     if (!isMatch) {
+      console.log('Password mismatch for:', email);
       return res.status(401).json({
         success: false,
         message: 'Invalid credentials'
@@ -98,30 +110,32 @@ exports.loginDoctor = async (req, res) => {
     // Generate token
     const token = generateToken(doctor._id, 'doctor');
 
-    // Return ALL doctor data
+    // Remove password from output
+    const doctorOutput = {
+      id: doctor._id,
+      name: doctor.name,
+      email: doctor.email,
+      phone: doctor.phone,
+      dateOfBirth: doctor.dateOfBirth,
+      gender: doctor.gender,
+      specialization: doctor.specialization,
+      license: doctor.license,
+      experience: doctor.experience,
+      qualification: doctor.qualification,
+      hospital: doctor.hospital,
+      consultationFee: doctor.consultationFee,
+      availableDays: doctor.availableDays,
+      availableTime: doctor.availableTime,
+      address: doctor.address,
+      bio: doctor.bio,
+      profileImage: doctor.profileImage,
+      role: 'doctor'
+    };
+
     res.status(200).json({
       success: true,
       token,
-      user: {
-        id: doctor._id,
-        name: doctor.name,
-        email: doctor.email,
-        phone: doctor.phone,
-        dateOfBirth: doctor.dateOfBirth,
-        gender: doctor.gender,
-        specialization: doctor.specialization,
-        license: doctor.license,
-        experience: doctor.experience,
-        qualification: doctor.qualification,
-        hospital: doctor.hospital,
-        consultationFee: doctor.consultationFee,
-        availableDays: doctor.availableDays,
-        availableTime: doctor.availableTime,
-        address: doctor.address,
-        bio: doctor.bio,
-        profileImage: doctor.profileImage,
-        role: 'doctor'
-      }
+      user: doctorOutput
     });
   } catch (error) {
     console.error('Login error:', error);
@@ -172,6 +186,107 @@ exports.updateDoctor = async (req, res) => {
     });
   } catch (error) {
     console.error('Update error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// @desc    Get all patients assigned to doctor
+// @route   GET /api/doctors/my-patients
+exports.getMyPatients = async (req, res) => {
+  try {
+    const patients = await Patient.find({ doctorId: req.user.id })
+      .sort('-createdAt');
+    
+    res.status(200).json({
+      success: true,
+      count: patients.length,
+      data: patients
+    });
+  } catch (error) {
+    console.error('Get my patients error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// @desc    Search patients for doctor
+// @route   GET /api/doctors/search-patients
+exports.searchPatients = async (req, res) => {
+  try {
+    const { query } = req.query;
+    
+    const patients = await Patient.find({
+      doctorId: req.user.id,
+      $or: [
+        { name: { $regex: query, $options: 'i' } },
+        { email: { $regex: query, $options: 'i' } },
+        { phone: { $regex: query, $options: 'i' } }
+      ]
+    });
+    
+    res.status(200).json({
+      success: true,
+      count: patients.length,
+      data: patients
+    });
+  } catch (error) {
+    console.error('Search error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// @desc    Add note for patient
+// @route   POST /api/doctors/patient-notes/:patientId
+exports.addPatientNote = async (req, res) => {
+  try {
+    const { note } = req.body;
+    const patientId = req.params.patientId;
+    
+    const patient = await Patient.findById(patientId);
+    if (!patient) {
+      return res.status(404).json({
+        success: false,
+        message: 'Patient not found'
+      });
+    }
+    
+    // Verify patient belongs to this doctor
+    if (patient.doctorId && patient.doctorId.toString() !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: 'Not authorized to add notes for this patient'
+      });
+    }
+    
+    // Add to patient's medical history or notes (simplified)
+    if (!patient.medicalHistory) {
+      patient.medicalHistory = [];
+    }
+    
+    patient.medicalHistory.push({
+      condition: 'Doctor Note',
+      diagnosedDate: new Date().toISOString().split('T')[0],
+      notes: note,
+      recordedAt: new Date()
+    });
+    
+    await patient.save();
+    
+    res.status(200).json({
+      success: true,
+      message: 'Note added successfully',
+      data: patient.medicalHistory[patient.medicalHistory.length - 1]
+    });
+  } catch (error) {
+    console.error('Add note error:', error);
     res.status(500).json({
       success: false,
       message: error.message

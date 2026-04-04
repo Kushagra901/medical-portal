@@ -112,10 +112,14 @@ const DoctorSignup = ({ onSwitchToLogin }) => {
     setFormData(prev => {
       const updated = { ...prev, [name]: value };
       
-      // Combine time parts into availableTime string
-      const startTime = `${updated.startHour || '09'}:${updated.startMinute || '00'} ${updated.startAmPm || 'AM'}`;
-      const endTime = `${updated.endHour || '05'}:${updated.endMinute || '00'} ${updated.endAmPm || 'PM'}`;
-      updated.availableTime = `${startTime} - ${endTime}`;
+      const startHour = updated.startHour?.toString().padStart(2, '0') || '09';
+      const startMinute = updated.startMinute?.toString().padStart(2, '0') || '00';
+      const startAmPm = updated.startAmPm || 'AM';
+      const endHour = updated.endHour?.toString().padStart(2, '0') || '05';
+      const endMinute = updated.endMinute?.toString().padStart(2, '0') || '00';
+      const endAmPm = updated.endAmPm || 'PM';
+      
+      updated.availableTime = `${startHour}:${startMinute} ${startAmPm} - ${endHour}:${endMinute} ${endAmPm}`;
       
       return updated;
     });
@@ -135,8 +139,8 @@ const DoctorSignup = ({ onSwitchToLogin }) => {
     }));
   };
 
-  // Validation function - memoized with useCallback
-  const validateField = useCallback((field, value, allData) => {
+  // Validation function
+  const validateField = (field, value, allData) => {
     switch(field) {
       case 'name':
         if (!value || value.trim() === '') return 'Full name is required';
@@ -211,15 +215,17 @@ const DoctorSignup = ({ onSwitchToLogin }) => {
       default:
         return '';
     }
-  }, [selectedCountry, countryCodes]);
+  };
 
-  // Validate all fields in step 1
-  const isStep1Valid = useCallback(() => {
+  // Validate step 1
+  const isStep1Valid = () => {
     const fields = ['name', 'email', 'password', 'confirmPassword', 'phone', 'gender'];
     let isValid = true;
     const newErrors = {};
+    const newTouched = { ...touched };
 
     fields.forEach(field => {
+      newTouched[field] = true;
       const error = validateField(field, formData[field], formData);
       if (error) {
         newErrors[field] = error;
@@ -227,17 +233,20 @@ const DoctorSignup = ({ onSwitchToLogin }) => {
       }
     });
 
-    setErrors(newErrors);
+    setErrors(prev => ({ ...prev, ...newErrors }));
+    setTouched(newTouched);
     return isValid;
-  }, [formData, validateField]);
+  };
 
   // Validate step 2
-  const isStep2Valid = useCallback(() => {
+  const isStep2Valid = () => {
     const fields = ['specialization', 'license', 'experience', 'qualification'];
     let isValid = true;
     const newErrors = {};
+    const newTouched = { ...touched };
 
     fields.forEach(field => {
+      newTouched[field] = true;
       const error = validateField(field, formData[field], formData);
       if (error) {
         newErrors[field] = error;
@@ -245,17 +254,20 @@ const DoctorSignup = ({ onSwitchToLogin }) => {
       }
     });
 
-    setErrors(newErrors);
+    setErrors(prev => ({ ...prev, ...newErrors }));
+    setTouched(newTouched);
     return isValid;
-  }, [formData, validateField]);
+  };
 
   // Validate step 3
-  const isStep3Valid = useCallback(() => {
+  const isStep3Valid = () => {
     const fields = ['consultationFee', 'availableDays', 'availableTime', 'address'];
     let isValid = true;
     const newErrors = {};
+    const newTouched = { ...touched };
 
     fields.forEach(field => {
+      newTouched[field] = true;
       const error = validateField(field, formData[field], formData);
       if (error) {
         newErrors[field] = error;
@@ -263,18 +275,24 @@ const DoctorSignup = ({ onSwitchToLogin }) => {
       }
     });
 
-    setErrors(newErrors);
+    setErrors(prev => ({ ...prev, ...newErrors }));
+    setTouched(newTouched);
     return isValid;
-  }, [formData, validateField]);
+  };
 
   const handleNext = (e) => {
     e.preventDefault();
-    if (step === 1 && isStep1Valid()) {
-      setStep(2);
-      window.scrollTo(0, 0);
-    } else if (step === 2 && isStep2Valid()) {
-      setStep(3);
-      window.scrollTo(0, 0);
+    
+    if (step === 1) {
+      if (isStep1Valid()) {
+        setStep(2);
+        window.scrollTo(0, 0);
+      }
+    } else if (step === 2) {
+      if (isStep2Valid()) {
+        setStep(3);
+        window.scrollTo(0, 0);
+      }
     }
   };
 
@@ -299,9 +317,6 @@ const DoctorSignup = ({ onSwitchToLogin }) => {
       // Format phone with country code
       const fullPhone = `${countryCodes[selectedCountry].code}${formData.phone}`;
 
-      // Format time
-      const availableTime = formData.availableTime;
-
       const completeData = {
         name: formData.name,
         email: formData.email,
@@ -317,13 +332,14 @@ const DoctorSignup = ({ onSwitchToLogin }) => {
         hospital: formData.hospital,
         consultationFee: formData.consultationFee,
         availableDays: formData.availableDays,
-        availableTime: availableTime,
+        availableTime: formData.availableTime,
         address: formData.address,
         bio: formData.bio,
         countryCode: selectedCountry
       };
 
       const result = await doctorSignup(completeData);
+      alert('Registration successful! Please login.');
       onSwitchToLogin();
     } catch (error) {
       setError(error.message || 'Registration failed. Please try again.');
@@ -386,7 +402,7 @@ const DoctorSignup = ({ onSwitchToLogin }) => {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={step === 3 ? handleSubmit : (e) => e.preventDefault()}>
         {/* Step 1: Personal Information */}
         {step === 1 && (
           <div className="form-step fade-in">
@@ -547,8 +563,9 @@ const DoctorSignup = ({ onSwitchToLogin }) => {
             {/* Form Actions for Step 1 */}
             <div className="form-actions">
               <button 
-                type="submit" 
-                className="btn btn-primary next-btn"
+                type="button" 
+                className="btn btn-primary next-btn" 
+                onClick={handleNext}
               >
                 Next Step <i className="fas fa-arrow-right"></i>
               </button>
@@ -666,7 +683,7 @@ const DoctorSignup = ({ onSwitchToLogin }) => {
               <button type="button" className="btn btn-outline" onClick={handlePrevious}>
                 <i className="fas fa-arrow-left"></i> Previous
               </button>
-              <button type="submit" className="btn btn-primary next-btn">
+              <button type="button" className="btn btn-primary next-btn" onClick={handleNext}>
                 Next Step <i className="fas fa-arrow-right"></i>
               </button>
             </div>
@@ -674,180 +691,200 @@ const DoctorSignup = ({ onSwitchToLogin }) => {
         )}
 
         {/* Step 3: Practice Information */}
-        {step === 3 && (
-          <div className="form-step fade-in">
-            <div className="step-header">
-              <i className="fas fa-clinic-medical"></i>
-              <h3>Practice Information</h3>
-            </div>
+{step === 3 && (
+  <div className="form-step fade-in">
+    <div className="step-header">
+      <i className="fas fa-clinic-medical"></i>
+      <h3>Practice Information</h3>
+    </div>
 
-            <div className="form-grid">
-              {/* Consultation Fee - Required */}
-              <div className="form-group half-width required">
-                <label>Consultation Fee ($) <span className="required-star">*</span></label>
-                <input
-                  type="number"
-                  name="consultationFee"
-                  value={formData.consultationFee}
-                  onChange={handleChange}
-                  onBlur={() => handleBlur('consultationFee')}
-                  placeholder="e.g., 100"
-                  min="0"
-                  step="1"
-                  className={getFieldError('consultationFee') ? 'error' : ''}
-                />
-                {getFieldError('consultationFee') && (
-                  <span className="error-message"><i className="fas fa-exclamation-circle"></i> {getFieldError('consultationFee')}</span>
-                )}
+    <div className="practice-form-grid">
+      {/* Consultation Fee - Required */}
+      <div className="form-group full-width">
+        <label>Consultation Fee ($) <span className="required-star">*</span></label>
+        <input
+          type="number"
+          name="consultationFee"
+          value={formData.consultationFee}
+          onChange={handleChange}
+          onBlur={() => handleBlur('consultationFee')}
+          placeholder="e.g., 100"
+          min="0"
+          step="1"
+          className={getFieldError('consultationFee') ? 'error' : ''}
+        />
+        {getFieldError('consultationFee') && (
+          <span className="error-message"><i className="fas fa-exclamation-circle"></i> {getFieldError('consultationFee')}</span>
+        )}
+      </div>
+
+      {/* Available Time - FULLY VISIBLE TIME PICKER */}
+      <div className="form-group full-width">
+        <label>Available Time <span className="required-star">*</span></label>
+        <div className="time-picker-visible">
+          <div className="time-block">
+            <div className="time-block-title">START TIME</div>
+            <div className="time-controls">
+              <div className="time-control">
+                <label className="time-control-label">Hour</label>
+                <select
+                  name="startHour"
+                  value={formData.startHour || '09'}
+                  onChange={handleTimeChange}
+                  className="time-select-visible"
+                >
+                  {Array.from({ length: 12 }, (_, i) => {
+                    const hour = (i + 1).toString().padStart(2, '0');
+                    return <option key={`start-${hour}`} value={hour}>{hour}</option>;
+                  })}
+                </select>
               </div>
-
-              {/* Available Time - Professional Time Picker */}
-              <div className="form-group half-width required">
-                <label>Available Time <span className="required-star">*</span></label>
-                <div className="time-picker-container">
-                  <div className="time-input-group">
-                    <label className="time-label">From</label>
-                    <div className="time-select-group">
-                      <select 
-                        name="startHour"
-                        value={formData.startHour || '09'}
-                        onChange={handleTimeChange}
-                        className="time-select"
-                      >
-                        {Array.from({ length: 12 }, (_, i) => {
-                          const hour = (i + 1).toString().padStart(2, '0');
-                          return <option key={`start-${hour}`} value={hour}>{hour}</option>;
-                        })}
-                      </select>
-                      <span className="time-colon">:</span>
-                      <select 
-                        name="startMinute"
-                        value={formData.startMinute || '00'}
-                        onChange={handleTimeChange}
-                        className="time-select"
-                      >
-                        <option value="00">00</option>
-                        <option value="15">15</option>
-                        <option value="30">30</option>
-                        <option value="45">45</option>
-                      </select>
-                      <select 
-                        name="startAmPm"
-                        value={formData.startAmPm || 'AM'}
-                        onChange={handleTimeChange}
-                        className="time-ampm"
-                      >
-                        <option value="AM">AM</option>
-                        <option value="PM">PM</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="time-separator">to</div>
-
-                  <div className="time-input-group">
-                    <label className="time-label">To</label>
-                    <div className="time-select-group">
-                      <select 
-                        name="endHour"
-                        value={formData.endHour || '05'}
-                        onChange={handleTimeChange}
-                        className="time-select"
-                      >
-                        {Array.from({ length: 12 }, (_, i) => {
-                          const hour = (i + 1).toString().padStart(2, '0');
-                          return <option key={`end-${hour}`} value={hour}>{hour}</option>;
-                        })}
-                      </select>
-                      <span className="time-colon">:</span>
-                      <select 
-                        name="endMinute"
-                        value={formData.endMinute || '00'}
-                        onChange={handleTimeChange}
-                        className="time-select"
-                      >
-                        <option value="00">00</option>
-                        <option value="15">15</option>
-                        <option value="30">30</option>
-                        <option value="45">45</option>
-                      </select>
-                      <select 
-                        name="endAmPm"
-                        value={formData.endAmPm || 'PM'}
-                        onChange={handleTimeChange}
-                        className="time-ampm"
-                      >
-                        <option value="AM">AM</option>
-                        <option value="PM">PM</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-                {getFieldError('availableTime') && (
-                  <span className="error-message"><i className="fas fa-exclamation-circle"></i> {getFieldError('availableTime')}</span>
-                )}
+              <div className="time-sep">:</div>
+              <div className="time-control">
+                <label className="time-control-label">Minute</label>
+                <select
+                  name="startMinute"
+                  value={formData.startMinute || '00'}
+                  onChange={handleTimeChange}
+                  className="time-select-visible"
+                >
+                  <option value="00">00</option>
+                  <option value="15">15</option>
+                  <option value="30">30</option>
+                  <option value="45">45</option>
+                </select>
               </div>
-
-              {/* Available Days - Required */}
-              <div className="form-group full-width required">
-                <label>Available Days <span className="required-star">*</span></label>
-                <div className="days-grid">
-                  {weekDays.map(day => (
-                    <label key={day} className="day-checkbox">
-                      <input
-                        type="checkbox"
-                        name="availableDays"
-                        value={day}
-                        checked={formData.availableDays.includes(day)}
-                        onChange={handleChange}
-                        onBlur={() => handleBlur('availableDays')}
-                      />
-                      <span>{day.substring(0, 3)}</span>
-                    </label>
-                  ))}
-                </div>
-                {getFieldError('availableDays') && (
-                  <span className="error-message"><i className="fas fa-exclamation-circle"></i> {getFieldError('availableDays')}</span>
-                )}
+              <div className="time-control">
+                <label className="time-control-label">AM/PM</label>
+                <select
+                  name="startAmPm"
+                  value={formData.startAmPm || 'AM'}
+                  onChange={handleTimeChange}
+                  className="time-ampm-visible"
+                >
+                  <option value="AM">AM</option>
+                  <option value="PM">PM</option>
+                </select>
               </div>
-
-              {/* Address - Required */}
-              <div className="form-group full-width required">
-                <label>Clinic Address <span className="required-star">*</span></label>
-                <textarea
-                  name="address"
-                  value={formData.address}
-                  onChange={handleChange}
-                  onBlur={() => handleBlur('address')}
-                  placeholder="Enter your full clinic address"
-                  rows="3"
-                  className={getFieldError('address') ? 'error' : ''}
-                />
-                {getFieldError('address') && (
-                  <span className="error-message"><i className="fas fa-exclamation-circle"></i> {getFieldError('address')}</span>
-                )}
-              </div>
-            </div>
-
-            {/* Form Actions for Step 3 */}
-            <div className="form-actions">
-              <button type="button" className="btn btn-outline" onClick={handlePrevious}>
-                <i className="fas fa-arrow-left"></i> Previous
-              </button>
-              <button 
-                type="submit" 
-                className="btn btn-success submit-btn" 
-                disabled={loading}
-              >
-                {loading ? (
-                  <><i className="fas fa-spinner fa-spin"></i> Registering...</>
-                ) : (
-                  <><i className="fas fa-check-circle"></i> Complete Registration</>
-                )}
-              </button>
             </div>
           </div>
+
+          <div className="time-arrow">
+            <i className="fas fa-arrow-right"></i>
+          </div>
+
+          <div className="time-block">
+            <div className="time-block-title">END TIME</div>
+            <div className="time-controls">
+              <div className="time-control">
+                <label className="time-control-label">Hour</label>
+                <select
+                  name="endHour"
+                  value={formData.endHour || '05'}
+                  onChange={handleTimeChange}
+                  className="time-select-visible"
+                >
+                  {Array.from({ length: 12 }, (_, i) => {
+                    const hour = (i + 1).toString().padStart(2, '0');
+                    return <option key={`end-${hour}`} value={hour}>{hour}</option>;
+                  })}
+                </select>
+              </div>
+              <div className="time-sep">:</div>
+              <div className="time-control">
+                <label className="time-control-label">Minute</label>
+                <select
+                  name="endMinute"
+                  value={formData.endMinute || '00'}
+                  onChange={handleTimeChange}
+                  className="time-select-visible"
+                >
+                  <option value="00">00</option>
+                  <option value="15">15</option>
+                  <option value="30">30</option>
+                  <option value="45">45</option>
+                </select>
+              </div>
+              <div className="time-control">
+                <label className="time-control-label">AM/PM</label>
+                <select
+                  name="endAmPm"
+                  value={formData.endAmPm || 'PM'}
+                  onChange={handleTimeChange}
+                  className="time-ampm-visible"
+                >
+                  <option value="AM">AM</option>
+                  <option value="PM">PM</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+        {getFieldError('availableTime') && (
+          <span className="error-message"><i className="fas fa-exclamation-circle"></i> {getFieldError('availableTime')}</span>
         )}
+      </div>
+
+      {/* Available Days - Required */}
+      <div className="form-group full-width">
+        <label>Available Days <span className="required-star">*</span></label>
+        <div className="days-grid-visible">
+          {weekDays.map(day => (
+            <label key={day} className="day-checkbox-visible">
+              <input
+                type="checkbox"
+                name="availableDays"
+                value={day}
+                checked={formData.availableDays.includes(day)}
+                onChange={handleChange}
+                onBlur={() => handleBlur('availableDays')}
+              />
+              <span>{day.substring(0, 3)}</span>
+            </label>
+          ))}
+        </div>
+        {getFieldError('availableDays') && (
+          <span className="error-message"><i className="fas fa-exclamation-circle"></i> {getFieldError('availableDays')}</span>
+        )}
+      </div>
+
+      {/* Address - Required */}
+      <div className="form-group full-width">
+        <label>Clinic Address <span className="required-star">*</span></label>
+        <textarea
+          name="address"
+          value={formData.address}
+          onChange={handleChange}
+          onBlur={() => handleBlur('address')}
+          placeholder="Enter your full clinic address"
+          rows="3"
+          className={getFieldError('address') ? 'error' : ''}
+        />
+        {getFieldError('address') && (
+          <span className="error-message"><i className="fas fa-exclamation-circle"></i> {getFieldError('address')}</span>
+        )}
+      </div>
+    </div>
+
+    {/* Form Actions for Step 3 */}
+    <div className="form-actions">
+      <button type="button" className="btn btn-outline" onClick={handlePrevious}>
+        <i className="fas fa-arrow-left"></i> Previous
+      </button>
+      <button 
+        type="submit" 
+        className="btn btn-success submit-btn" 
+        disabled={loading}
+      >
+        {loading ? (
+          <><i className="fas fa-spinner fa-spin"></i> Registering...</>
+        ) : (
+          <><i className="fas fa-check-circle"></i> Complete Registration</>
+        )}
+      </button>
+    </div>
+  </div>
+)}
       </form>
 
       <div className="signup-footer">

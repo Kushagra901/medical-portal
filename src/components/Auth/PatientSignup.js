@@ -141,8 +141,10 @@ const PatientSignup = ({ onSwitchToLogin }) => {
     const fields = ['name', 'email', 'password', 'confirmPassword', 'phone', 'gender'];
     let isValid = true;
     const newErrors = {};
+    const newTouched = { ...touched };
 
     fields.forEach(field => {
+      newTouched[field] = true;
       const error = validateField(field, formData[field], formData);
       if (error) {
         newErrors[field] = error;
@@ -150,14 +152,16 @@ const PatientSignup = ({ onSwitchToLogin }) => {
       }
     });
 
-    setErrors(newErrors);
+    setErrors(prev => ({ ...prev, ...newErrors }));
+    setTouched(newTouched);
     return isValid;
-  }, [formData, validateField]);
+  }, [formData, validateField, touched]);
 
   // Validate step 2
   const isStep2Valid = useCallback(() => {
     const newErrors = {};
     let isValid = true;
+    const newTouched = { ...touched, emergencyContact: true };
 
     const contactError = validateField('emergencyContact', formData.emergencyContact, formData);
     if (contactError) {
@@ -166,6 +170,7 @@ const PatientSignup = ({ onSwitchToLogin }) => {
     }
 
     if (formData.emergencyPhone) {
+      newTouched.emergencyPhone = true;
       const phoneError = validateField('emergencyPhone', formData.emergencyPhone, formData);
       if (phoneError) {
         newErrors.emergencyPhone = phoneError;
@@ -173,9 +178,10 @@ const PatientSignup = ({ onSwitchToLogin }) => {
       }
     }
 
-    setErrors(newErrors);
+    setErrors(prev => ({ ...prev, ...newErrors }));
+    setTouched(newTouched);
     return isValid;
-  }, [formData, validateField]);
+  }, [formData, validateField, touched]);
 
   const handleNext = (e) => {
     e.preventDefault();
@@ -217,6 +223,7 @@ const PatientSignup = ({ onSwitchToLogin }) => {
       };
 
       await patientSignup(completeData);
+      alert('Registration successful! Please login.');
       onSwitchToLogin();
     } catch (error) {
       setError(error.message || 'Registration failed. Please try again.');

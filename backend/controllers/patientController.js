@@ -1,4 +1,5 @@
 const Patient = require('../models/Patient');
+const Doctor = require('../models/Doctor');
 const jwt = require('jsonwebtoken');
 
 // Generate JWT Token
@@ -26,14 +27,13 @@ exports.registerPatient = async (req, res) => {
       });
     }
 
-    // Create patient with ALL fields
+    // Create patient
     const patient = await Patient.create(req.body);
-    console.log('Patient created:', patient);
+    console.log('Patient created:', patient._id);
 
     // Generate token
     const token = generateToken(patient._id, 'patient');
 
-    // Return ALL patient data
     res.status(201).json({
       success: true,
       token,
@@ -54,7 +54,8 @@ exports.registerPatient = async (req, res) => {
         insuranceProvider: patient.insuranceProvider,
         insuranceId: patient.insuranceId,
         profileImage: patient.profileImage,
-        role: 'patient'
+        role: 'patient',
+        medicalHistory: patient.medicalHistory
       }
     });
   } catch (error) {
@@ -95,7 +96,6 @@ exports.loginPatient = async (req, res) => {
     // Generate token
     const token = generateToken(patient._id, 'patient');
 
-    // Return ALL patient data
     res.status(200).json({
       success: true,
       token,
@@ -116,7 +116,8 @@ exports.loginPatient = async (req, res) => {
         insuranceProvider: patient.insuranceProvider,
         insuranceId: patient.insuranceId,
         profileImage: patient.profileImage,
-        role: 'patient'
+        role: 'patient',
+        medicalHistory: patient.medicalHistory
       }
     });
   } catch (error) {
@@ -168,6 +169,96 @@ exports.updatePatient = async (req, res) => {
     });
   } catch (error) {
     console.error('Update error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// @desc    Get all patients for a doctor
+// @route   GET /api/patients/doctor/patients
+exports.getDoctorPatients = async (req, res) => {
+  try {
+    const patients = await Patient.find({ doctorId: req.user.id })
+      .sort('-createdAt');
+    
+    res.status(200).json({
+      success: true,
+      count: patients.length,
+      data: patients
+    });
+  } catch (error) {
+    console.error('Get doctor patients error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// @desc    Assign patient to doctor
+// @route   PUT /api/patients/:id/assign
+exports.assignPatient = async (req, res) => {
+  try {
+    const { doctorId } = req.body;
+    const patientId = req.params.id;
+
+    const patient = await Patient.findById(patientId);
+    if (!patient) {
+      return res.status(404).json({
+        success: false,
+        message: 'Patient not found'
+      });
+    }
+
+    const doctor = await Doctor.findById(doctorId);
+    if (!doctor) {
+      return res.status(404).json({
+        success: false,
+        message: 'Doctor not found'
+      });
+    }
+
+    // Update patient
+    patient.doctorId = doctorId;
+    patient.assignedDoctor = doctor.name;
+    await patient.save();
+
+    // Update doctor's patient list
+    if (!doctor.patients || !doctor.patients.includes(patientId)) {
+      await Doctor.findByIdAndUpdate(doctorId, {
+        $push: { patients: patientId },
+        $inc: { patientCount: 1 }
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: patient,
+      message: `Patient assigned to Dr. ${doctor.name}`
+    });
+  } catch (error) {
+    console.error('Assign patient error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// @desc    Get patient's doctor
+// @route   GET /api/patients/my-doctor
+exports.getMyDoctor = async (req, res) => {
+  try {
+    const patient = await Patient.findById(req.user.id).populate('doctorId', 'name specialization phone email');
+    
+    res.status(200).json({
+      success: true,
+      data: patient.doctorId || null
+    });
+  } catch (error) {
+    console.error('Get my doctor error:', error);
     res.status(500).json({
       success: false,
       message: error.message

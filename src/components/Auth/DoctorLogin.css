@@ -71,6 +71,8 @@
   color: #334155;
   font-size: 14px;
   font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .doctor-login-container .form-group label i {
@@ -222,18 +224,27 @@
   line-height: 24px;
 }
 
-.doctor-login-container .forgot-link {
+/* FIXED: Professional Forgot Password Button */
+.doctor-login-container .forgot-password-btn {
+  background: none;
+  border: none;
   color: #2563EB;
-  text-decoration: none;
   font-size: 14px;
   font-weight: 500;
-  transition: color 0.2s ease;
-  line-height: 24px;
+  cursor: pointer;
+  padding: 8px 0;
+  transition: all 0.3s ease;
+  font-family: 'Poppins', sans-serif;
+  position: relative;
 }
 
-.doctor-login-container .forgot-link:hover {
+.doctor-login-container .forgot-password-btn:hover {
   color: #1E40AF;
-  text-decoration: underline;
+  transform: translateX(2px);
+}
+
+.doctor-login-container .forgot-password-btn:active {
+  transform: scale(0.98);
 }
 
 .doctor-login-container .login-btn {
@@ -252,6 +263,7 @@
   gap: 12px;
   transition: all 0.3s ease;
   box-shadow: 0 10px 20px rgba(37, 99, 235, 0.2);
+  margin-top: 10px;
 }
 
 .doctor-login-container .login-btn:hover:not(:disabled) {
@@ -387,6 +399,26 @@
   transform: translateX(5px);
 }
 
+.doctor-login-container .login-footer {
+  margin-top: 25px;
+  padding-top: 15px;
+  text-align: center;
+  border-top: 2px solid #F1F5F9;
+}
+
+.doctor-login-container .login-footer p {
+  color: #64748B;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.doctor-login-container .login-footer i {
+  color: #2563EB;
+}
+
 /* Responsive */
 @media (max-width: 640px) {
   .doctor-login-container {
@@ -403,7 +435,7 @@
     gap: 15px;
   }
 
-  .doctor-login-container .forgot-link {
+  .doctor-login-container .forgot-password-btn {
     align-self: flex-start;
   }
 }
