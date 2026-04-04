@@ -110,24 +110,24 @@ const DoctorLogin = ({ onSwitchToSignup }) => {
           </div>
         </div>
 
-        <div className="form-row">
-          <label className="checkbox-container">
-            <input
-              type="checkbox"
-              checked={rememberMe}
-              onChange={(e) => setRememberMe(e.target.checked)}
-            />
-            <span className="checkmark"></span>
-            <span className="checkbox-label">Remember me</span>
-          </label>
-          <button 
-            type="button"
-            className="forgot-link-button" 
-            onClick={handleForgotPassword}
-          >
-            Forgot Password?
-          </button>
-        </div>
+                  <div className="form-row">
+            <label className="checkbox-container">
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+              />
+              <span className="checkmark"></span>
+              <span className="checkbox-label">Remember me</span>
+            </label>
+            <button 
+              type="button"
+              className="forgot-password-btn" 
+              onClick={handleForgotPassword}
+            >
+              Forgot Password?
+            </button>
+          </div>
 
         <button type="submit" className="login-btn" disabled={loading}>
           {loading ? (

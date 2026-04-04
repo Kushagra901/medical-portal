@@ -763,3 +763,47 @@
     margin-bottom: 15px;
   }
 }
+
+/* Edit Profile Form Styles */
+.edit-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #1e293b;
+  background-color: white;
+  transition: all 0.2s;
+}
+
+.edit-input:focus {
+  outline: none;
+  border-color: #43A047;
+  box-shadow: 0 0 0 2px rgba(67, 160, 71, 0.15);
+}
+
+textarea.edit-input {
+  min-height: 50px;
+  resize: vertical;
+}
+
+.btn-outline {
+  background: transparent;
+  color: #1e293b;
+  border: 1px solid #cbd5e1;
+}
+
+.btn-outline:hover {
+  background: #f8fafc;
+}
+
+.btn-success {
+  background: #4CAF50;
+  color: white;
+}
+
+.btn-success:hover {
+  background: #43A047;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(67, 160, 71, 0.3);
+}

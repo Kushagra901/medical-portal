@@ -161,7 +161,7 @@
 }
 
 /* Form Labels */
-.form-group label {
+.form-group > label {
   display: block;
   margin-bottom: 8px;
   color: #334155;
@@ -177,9 +177,9 @@
 }
 
 /* Form Inputs */
-.form-group input,
-.form-group select,
-.form-group textarea {
+.form-group > input,
+.form-group > select,
+.form-group > textarea {
   width: 100%;
   padding: 12px 16px;
   border: 2px solid #e2e8f0;
@@ -191,23 +191,23 @@
   box-sizing: border-box;
 }
 
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
+.form-group > input:focus,
+.form-group > select:focus,
+.form-group > textarea:focus {
   outline: none;
   border-color: #2563eb;
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
-.form-group input.error,
-.form-group select.error,
-.form-group textarea.error {
+.form-group > input.error,
+.form-group > select.error,
+.form-group > textarea.error {
   border-color: #dc2626;
   background: #fef2f2;
 }
 
-.form-group input::placeholder,
-.form-group textarea::placeholder {
+.form-group > input::placeholder,
+.form-group > textarea::placeholder {
   color: #94a3b8;
   font-size: 13px;
 }
@@ -302,45 +302,6 @@
 .password-requirements span.valid {
   color: #2563eb;
   background: #eff6ff;
-}
-
-/* Days Grid */
-.days-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 5px;
-}
-
-.day-checkbox {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 8px 12px;
-  background: #f8fafc;
-  border: 2px solid #e2e8f0;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.day-checkbox:hover {
-  border-color: #2563eb;
-  background: #eff6ff;
-  transform: translateY(-1px);
-}
-
-.day-checkbox input {
-  width: 16px;
-  height: 16px;
-  cursor: pointer;
-  accent-color: #2563eb;
-}
-
-.day-checkbox span {
-  font-size: 13px;
-  color: #334155;
-  font-weight: 500;
 }
 
 /* Error Message */
@@ -508,7 +469,250 @@
   }
 }
 
-/* Responsive Design */
+/* ========== PRACTICE FORM GRID ========== */
+.practice-form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-bottom: 20px;
+}
+
+/* ========== FULLY VISIBLE TIME PICKER ========== */
+.time-picker-visible {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  background: #ffffff;
+  padding: 25px;
+  border-radius: 16px;
+  border: 2px solid #e2e8f0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  flex-wrap: wrap;
+}
+
+.time-block {
+  flex: 1;
+  background: #f8fafc;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  min-width: 220px;
+}
+
+.time-block-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e293b;
+  text-align: center;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #2563eb;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.time-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.time-control {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.time-control-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.time-select-visible {
+  width: 80px;
+  padding: 12px 8px;
+  border: 2px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 18px;
+  font-weight: 600;
+  text-align: center;
+  font-family: 'Poppins', sans-serif;
+  background: white;
+  color: #1e293b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.time-select-visible:hover {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+
+.time-select-visible:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.time-ampm-visible {
+  width: 80px;
+  padding: 12px 8px;
+  border: 2px solid #2563eb;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: center;
+  font-family: 'Poppins', sans-serif;
+  background: #2563eb;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.time-ampm-visible:hover {
+  background: #1e40af;
+  border-color: #1e40af;
+}
+
+.time-sep {
+  font-size: 28px;
+  font-weight: 700;
+  color: #2563eb;
+  padding: 0 5px;
+}
+
+.time-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  background: #2563eb;
+  border-radius: 50%;
+  color: white;
+  font-size: 20px;
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+}
+
+/* ========== PROFESSIONAL DAYS GRID ========== */
+.days-grid-visible {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.day-checkbox-visible {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 8px;
+  background: #f8fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.day-checkbox-visible:hover {
+  border-color: #2563eb;
+  background: #eff6ff;
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
+}
+
+.day-checkbox-visible input {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: #2563eb;
+  margin: 0;
+}
+
+.day-checkbox-visible span {
+  font-size: 14px;
+  font-weight: 600;
+  color: #334155;
+  transition: color 0.2s ease;
+}
+
+.day-checkbox-visible:has(input:checked) {
+  background: #eff6ff;
+  border-color: #2563eb;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+}
+
+.day-checkbox-visible:has(input:checked) span {
+  color: #2563eb;
+  font-weight: 700;
+}
+
+/* Loading Spinner */
+.fa-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Focus visible for accessibility */
+.btn:focus-visible,
+.login-link:focus-visible,
+.country-select:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+/* Print styles */
+@media print {
+  .doctor-signup-container.professional {
+    box-shadow: none;
+    padding: 20px;
+  }
+
+  .btn,
+  .login-link {
+    display: none;
+  }
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .days-grid-visible {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .time-picker-visible {
+    flex-direction: column;
+  }
+
+  .time-arrow {
+    transform: rotate(90deg);
+    margin: 5px 0;
+  }
+
+  .time-block {
+    width: 100%;
+  }
+}
+
 @media (max-width: 768px) {
   .doctor-signup-container.professional {
     padding: 20px;
@@ -562,13 +766,29 @@
     padding: 12px 8px;
   }
 
-  .days-grid {
-    justify-content: flex-start;
-  }
-
   .password-requirements {
     flex-direction: column;
     gap: 5px;
+  }
+
+  .days-grid-visible {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .days-grid-visible {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .time-controls {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .time-select-visible,
+  .time-ampm-visible {
+    width: 100px;
   }
 }
 
@@ -582,168 +802,11 @@
     margin-bottom: 5px;
   }
 
-  .day-checkbox {
-    flex: 1;
-    justify-content: center;
-  }
-
   .signup-header h2 {
     font-size: 24px;
   }
-}
 
-/* Loading Spinner */
-.fa-spinner {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-/* Tooltip for country select (optional) */
-.country-select option {
-  padding: 8px;
-  font-size: 13px;
-}
-
-/* Focus visible for accessibility */
-.btn:focus-visible,
-.login-link:focus-visible,
-.country-select:focus-visible,
-input:focus-visible,
-select:focus-visible,
-textarea:focus-visible {
-  outline: 2px solid #2563eb;
-  outline-offset: 2px;
-}
-
-/* Print styles (optional) */
-@media print {
-  .doctor-signup-container.professional {
-    box-shadow: none;
-    padding: 20px;
-  }
-
-  .btn,
-  .login-link {
-    display: none;
-  }
-}
-/* Professional Time Picker */
-.time-picker-container {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  flex-wrap: wrap;
-  background: #f8fafc;
-  padding: 15px;
-  border-radius: 12px;
-  border: 2px solid #e2e8f0;
-}
-
-.time-input-group {
-  flex: 1;
-  min-width: 200px;
-}
-
-.time-label {
-  display: block;
-  margin-bottom: 5px;
-  color: #64748b;
-  font-size: 12px;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.time-select-group {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  background: white;
-  padding: 8px 12px;
-  border-radius: 8px;
-  border: 2px solid #e2e8f0;
-}
-
-.time-select {
-  width: 60px;
-  padding: 8px;
-  border: none;
-  background: transparent;
-  font-size: 14px;
-  font-weight: 500;
-  color: #1e293b;
-  cursor: pointer;
-  text-align: center;
-}
-
-.time-select:focus {
-  outline: none;
-  background: #eff6ff;
-  border-radius: 4px;
-}
-
-.time-colon {
-  color: #64748b;
-  font-weight: 600;
-  font-size: 16px;
-}
-
-.time-ampm {
-  width: 60px;
-  padding: 8px;
-  border: none;
-  background: transparent;
-  font-size: 14px;
-  font-weight: 600;
-  color: #2563eb;
-  cursor: pointer;
-  text-align: center;
-}
-
-.time-ampm:focus {
-  outline: none;
-  background: #eff6ff;
-  border-radius: 4px;
-}
-
-.time-separator {
-  color: #64748b;
-  font-weight: 600;
-  font-size: 14px;
-  text-transform: uppercase;
-  padding: 0 5px;
-}
-
-/* Hover effects */
-.time-select-group:hover {
-  border-color: #2563eb;
-}
-
-/* Responsive time picker */
-@media (max-width: 768px) {
-  .time-picker-container {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .time-input-group {
-    width: 100%;
-  }
-
-  .time-separator {
-    text-align: center;
-    padding: 5px 0;
-  }
-
-  .time-select-group {
-    justify-content: space-between;
-  }
-
-  .time-select {
-    width: 50px;
+  .days-grid-visible {
+    grid-template-columns: repeat(3, 1fr);
   }
 }
