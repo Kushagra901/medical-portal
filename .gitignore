@@ -87,4 +87,7 @@ credentials/
 # API keys (never commit!)
 *.secret
 *.token
-EOF
+
+# Ignore other projects and test exports
+report-ai/
+*.xlsx
