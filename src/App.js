@@ -5,7 +5,6 @@ import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import DoctorAuthPage from './pages/DoctorAuthPage';
 import PatientAuthPage from './pages/PatientAuthPage';
-import DashboardPage from './pages/DoctorDashboardPage';
 import DoctorDashboardPage from './pages/DoctorDashboardPage';
 import PatientDashboardPage from './pages/PatientDashboardPage';
 import PrivateRoute from './components/Auth/PrivateRoute';
@@ -26,7 +25,7 @@ function App() {
           {/* Original Dashboard (for backward compatibility) */}
           <Route path="/dashboard/*" element={
             <PrivateRoute>
-              <DashboardPage />
+              <DoctorDashboardPage />
             </PrivateRoute>
           } />
           

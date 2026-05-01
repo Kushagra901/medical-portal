@@ -14,6 +14,7 @@ const PatientSchema = new mongoose.Schema({
   allergies: { type: String, default: null },
   currentMedications: { type: String, default: null },
   emergencyContact: { type: String, default: null },
+  emergencyPhone: { type: String, default: null },
   address: { type: String, default: null },
   insuranceProvider: { type: String, default: null },
   insuranceId: { type: String, default: null },

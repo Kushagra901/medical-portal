@@ -10,12 +10,14 @@ const {
   updateDoctor,
   getMyPatients,
   searchPatients,
-  addPatientNote
+  addPatientNote,
+  getNearbyDoctors
 } = require('../controllers/doctorController');
 
 // Public routes
 router.post('/register', registerDoctor);
 router.post('/login', loginDoctor);
+router.get('/nearby', getNearbyDoctors);
 
 // Protected routes
 router.get('/me', protect, getMe);

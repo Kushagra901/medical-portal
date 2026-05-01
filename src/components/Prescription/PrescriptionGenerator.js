@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getPatients } from '../../services/patientService';
 import { getMedicines, createMedicine } from '../../services/medicineService';
 import { createPrescription } from '../../services/prescriptionService';
+import { getStoredDoctor } from '../../services/doctorAuth';
 import jsPDF from 'jspdf';
 import './PrescriptionGenerator.css';
 
@@ -9,6 +10,7 @@ const PrescriptionGenerator = () => {
     const [patients, setPatients] = useState([]);
     const [medicines, setMedicines] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [doctor] = useState(() => getStoredDoctor() || {});
     const [prescription, setPrescription] = useState({
         patientId: '',
         // Manual fields - not auto-populated
@@ -275,8 +277,9 @@ const PrescriptionGenerator = () => {
                         
                         <div class="footer">
                             <p>___________________</p>
-                            <p><strong>Dr. John Smith</strong></p>
-                            <p>MBBS, MD</p>
+                            <p><strong>Dr. ${doctor.name || 'Attending Physician'}</strong></p>
+                            <p>${doctor.qualification || 'MBBS'}</p>
+                            <p>${doctor.hospital || ''}</p>
                         </div>
                     </body>
                 </html>
@@ -392,9 +395,9 @@ const PrescriptionGenerator = () => {
         const finalY = (yPos > 240) ? 280 : 260;
         doc.text('___________________', 140, finalY);
         doc.setFont(undefined, 'bold');
-        doc.text('Dr. John Smith', 145, finalY + 8);
+        doc.text(`Dr. ${doctor.name || 'Attending Physician'}`, 145, finalY + 8);
         doc.setFont(undefined, 'normal');
-        doc.text('MBBS, MD', 150, finalY + 14);
+        doc.text(doctor.qualification || 'MBBS', 150, finalY + 14);
         
         doc.save(`Prescription_${patient?.name || 'Patient'}_${new Date().toISOString().split('T')[0]}.pdf`);
     };
@@ -764,8 +767,8 @@ const PrescriptionGenerator = () => {
                         <div className="preview-footer">
                             <div className="doctor-signature">
                                 <p>___________________</p>
-                                <p><strong>Dr. John Smith</strong></p>
-                                <p>MBBS, MD</p>
+                                <p><strong>Dr. {doctor.name || 'Attending Physician'}</strong></p>
+                                <p>{doctor.qualification || 'MBBS'}</p>
                             </div>
                         </div>
                     </div>

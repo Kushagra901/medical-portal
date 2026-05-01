@@ -217,7 +217,7 @@ const LandingPage = () => {
             </div>
           </div>
           <div className="footer-bottom">
-            <p>&copy; 2024 MediCare Portal. All rights reserved.</p>
+            <p>&copy; {new Date().getFullYear()} MediCare Portal. All rights reserved.</p>
             <div className="footer-badges">
               <span><i className="fas fa-shield-alt"></i> HIPAA Compliant</span>
               <span><i className="fas fa-lock"></i> 256-bit SSL</span>

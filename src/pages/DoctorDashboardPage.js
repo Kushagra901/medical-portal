@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import * as XLSX from 'xlsx';
 import { exportAllData } from '../services/exportService';
 import { getStoredDoctor, doctorLogout, updateDoctorProfile } from '../services/doctorAuth';
+import { getPatients } from '../services/patientService';
+import { getPrescriptions } from '../services/prescriptionService';
 import MedicineDB from '../components/MedicineDB/MedicineDB';
 import PatientDB from '../components/PatientDB/PatientDB';
 import PrescriptionGenerator from '../components/Prescription/PrescriptionGenerator';
@@ -39,6 +41,50 @@ const DoctorDashboardPage = () => {
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [editFormData, setEditFormData] = useState({});
   const [isSaving, setIsSaving] = useState(false);
+  const [dashboardStats, setDashboardStats] = useState({
+    totalPatients: 0,
+    totalPrescriptions: 0,
+    recentPrescriptions: []
+  });
+  const [loadingStats, setLoadingStats] = useState(true);
+  const [scanId, setScanId] = useState('');
+  const [scanResult, setScanResult] = useState(null);
+
+  const handleScanId = async (e) => {
+    e.preventDefault();
+    if (!scanId.trim()) return;
+    try {
+      const allPatients = await getPatients();
+      const found = allPatients.find(p => p.id === scanId.trim() || p._id === scanId.trim());
+      if (found) {
+        setScanResult(found);
+      } else {
+        alert("Patient not found!");
+      }
+    } catch (err) {
+      alert("Error scanning ID");
+    }
+  };
+
+  const fetchDashboardStats = async () => {
+    try {
+      setLoadingStats(true);
+      const [patients, prescriptions] = await Promise.all([
+        getPatients(),
+        getPrescriptions()
+      ]);
+      const sorted = [...prescriptions].sort((a, b) => new Date(b.date) - new Date(a.date));
+      setDashboardStats({
+        totalPatients: patients.length,
+        totalPrescriptions: prescriptions.length,
+        recentPrescriptions: sorted.slice(0, 3)
+      });
+    } catch (err) {
+      console.error('Error fetching dashboard stats:', err);
+    } finally {
+      setLoadingStats(false);
+    }
+  };
 
   const handleEditClick = () => {
     setEditFormData(doctor);
@@ -85,6 +131,7 @@ const DoctorDashboardPage = () => {
       navigate('/doctor/auth');
     } else {
       setDoctor(currentDoctor);
+      fetchDashboardStats();
     }
   }, [navigate]);
 
@@ -233,61 +280,96 @@ const DoctorDashboardPage = () => {
         </div>
 
         <div className="dashboard-content">
-          {/* Dashboard Tab */}
           {activeTab === 'dashboard' && (
             <div className="dashboard-tab">
               <h2>Dashboard Overview</h2>
+
+              {/* Scan Patient ID Section */}
+              <div style={{ background: '#fff', padding: '20px', borderRadius: '12px', marginBottom: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)', border: '1px solid #E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '15px' }}>
+                <div>
+                  <h3 style={{ margin: '0 0 8px 0', color: '#111827' }}><i className="fas fa-qrcode" style={{color: '#2563EB', marginRight: '8px'}}></i> Quick Scan Patient</h3>
+                  <p style={{ margin: 0, color: '#6B7280', fontSize: '0.9rem' }}>Enter Patient's QR ID to pull their record instantly</p>
+                </div>
+                <form onSubmit={handleScanId} style={{ display: 'flex', gap: '10px' }}>
+                  <input 
+                    type="text" 
+                    placeholder="e.g. 64a8b... or MED-123" 
+                    value={scanId}
+                    onChange={(e) => setScanId(e.target.value)}
+                    style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid #D1D5DB', outline: 'none', width: '250px' }}
+                  />
+                  <button type="submit" className="btn btn-primary" style={{ padding: '0 20px' }}>Load</button>
+                </form>
+              </div>
+
+              {scanResult && (
+                <div style={{ background: '#EFF6FF', padding: '20px', borderRadius: '12px', marginBottom: '24px', borderLeft: '4px solid #2563EB' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <div>
+                      <h3 style={{ margin: '0 0 5px 0', color: '#1E3A8A' }}>Patient Found: {scanResult.name}</h3>
+                      <p style={{ margin: '0 0 10px 0', color: '#3B82F6', fontSize: '0.9rem' }}>ID: {scanResult.id}</p>
+                      <p style={{ margin: '4px 0' }}><strong>Blood:</strong> {scanResult.bloodGroup || 'N/A'} | <strong>Age/DOB:</strong> {scanResult.dateOfBirth || 'N/A'}</p>
+                      <p style={{ margin: '4px 0' }}><strong>Phone:</strong> {scanResult.phone}</p>
+                      <p style={{ margin: '4px 0' }}><strong>Allergies:</strong> {scanResult.allergies || 'None recorded'}</p>
+                    </div>
+                    <button onClick={() => setScanResult(null)} className="btn btn-outline" style={{ border: 'none', color: '#6B7280' }}><i className="fas fa-times"></i></button>
+                  </div>
+                  <div style={{ marginTop: '16px', display: 'flex', gap: '10px' }}>
+                     <button className="btn btn-primary" onClick={() => { setScanResult(null); setActiveTab('prescription'); }}>Write Prescription</button>
+                     <button className="btn btn-outline" onClick={() => { setScanResult(null); setActiveTab('patients'); }}>View Full DB</button>
+                  </div>
+                </div>
+              )}
+
               <div className="stats-grid">
                 <div className="stat-card">
                   <i className="fas fa-users"></i>
                   <h3>Total Patients</h3>
-                  <p>156</p>
-                </div>
-                <div className="stat-card">
-                  <i className="fas fa-calendar-check"></i>
-                  <h3>Today's Appointments</h3>
-                  <p>8</p>
+                  <p>{loadingStats ? <i className="fas fa-spinner fa-spin"></i> : dashboardStats.totalPatients}</p>
                 </div>
                 <div className="stat-card">
                   <i className="fas fa-prescription"></i>
-                  <h3>Pending Prescriptions</h3>
-                  <p>12</p>
+                  <h3>Prescriptions Issued</h3>
+                  <p>{loadingStats ? <i className="fas fa-spinner fa-spin"></i> : dashboardStats.totalPrescriptions}</p>
                 </div>
                 <div className="stat-card">
-                  <i className="fas fa-flask"></i>
-                  <h3>Pending Lab Reports</h3>
-                  <p>5</p>
+                  <i className="fas fa-user-md"></i>
+                  <h3>Specialization</h3>
+                  <p style={{ fontSize: '0.9rem' }}>{doctor.specialization || 'Not set'}</p>
+                </div>
+                <div className="stat-card">
+                  <i className="fas fa-clock"></i>
+                  <h3>Available Hours</h3>
+                  <p style={{ fontSize: '0.85rem' }}>{doctor.availableTime || 'Not set'}</p>
                 </div>
               </div>
 
               <div className="recent-activity">
-                <h3>Recent Activity</h3>
+                <h3>Recent Prescriptions</h3>
                 <div className="activity-list">
-                  <div className="activity-item">
-                    <i className="fas fa-user-plus"></i>
-                    <div>
-                      <p>New patient registered</p>
-                      <span>5 minutes ago</span>
+                  {loadingStats ? (
+                    <div className="activity-item"><i className="fas fa-spinner fa-spin"></i><div><p>Loading activity...</p></div></div>
+                  ) : dashboardStats.recentPrescriptions.length === 0 ? (
+                    <div className="activity-item">
+                      <i className="fas fa-prescription"></i>
+                      <div><p>No prescriptions yet</p><span>Generate your first prescription</span></div>
                     </div>
-                  </div>
-                  <div className="activity-item">
-                    <i className="fas fa-prescription"></i>
-                    <div>
-                      <p>Prescription generated for John Doe</p>
-                      <span>1 hour ago</span>
-                    </div>
-                  </div>
-                  <div className="activity-item">
-                    <i className="fas fa-flask"></i>
-                    <div>
-                      <p>Lab report uploaded for Sarah Smith</p>
-                      <span>3 hours ago</span>
-                    </div>
-                  </div>
+                  ) : (
+                    dashboardStats.recentPrescriptions.map((rx, i) => (
+                      <div key={rx._id || i} className="activity-item">
+                        <i className="fas fa-prescription"></i>
+                        <div>
+                          <p>Prescription #{rx.prescriptionId} — {rx.diagnosis || 'No diagnosis'}</p>
+                          <span>{rx.date ? new Date(rx.date).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Unknown date'}</span>
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
             </div>
           )}
+
 
           {/* Medicine DB Tab */}
           {activeTab === 'medicine' && <MedicineDB />}

@@ -20,8 +20,22 @@ const DoctorSchema = new mongoose.Schema({
   bio: { type: String, default: '' },
   profileImage: { type: String, default: null },
   role: { type: String, default: 'doctor' },
+  location: {
+    type: {
+      type: String,
+      enum: ['Point'],
+      default: 'Point'
+    },
+    coordinates: {
+      type: [Number],
+      default: [0, 0] // [longitude, latitude]
+    }
+  },
   createdAt: { type: Date, default: Date.now }
 });
+
+// Index for spatial queries
+DoctorSchema.index({ location: '2dsphere' });
 
 // Encrypt password using bcrypt
 DoctorSchema.pre('save', async function(next) {
