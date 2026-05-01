@@ -12,6 +12,8 @@ backend/node_modules/
 .env.production.local
 .env.*.local
 backend/.env
+backend/.env.docker
+report-ai/.env
 
 # Build outputs
 /build

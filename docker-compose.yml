@@ -26,11 +26,8 @@ services:
     restart: unless-stopped
     ports:
       - "5000:5000"
-    environment:
-      - PORT=5000
-      - MONGODB_URI=mongodb://mongodb:27017/medical_portal
-      - JWT_SECRET=your_super_secret_jwt_key_change_this_in_production
-      - JWT_EXPIRE=7d
+    env_file:
+      - ./backend/.env.docker
     depends_on:
       - mongodb
     networks:
@@ -63,10 +60,8 @@ services:
     restart: unless-stopped
     ports:
       - "8080:80"
-    environment:
-      - VITE_SUPABASE_PROJECT_ID=krhkdkissiqhzjeffvnt
-      - VITE_SUPABASE_PUBLISHABLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtyaGtka2lzc2lxaHpqZWZmdm50Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyNTM4MDAsImV4cCI6MjA4NzgyOTgwMH0.q2JtmOhxS0s7vg1uPfm-zZ4b2a6POmi4s1ZJ44asoyM
-      - VITE_SUPABASE_URL=https://krhkdkissiqhzjeffvnt.supabase.co
+    env_file:
+      - ./report-ai/.env
     depends_on:
       - backend
     networks:
