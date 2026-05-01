@@ -4,120 +4,165 @@
   <img src="https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/mongodb/mongodb.png" alt="MongoDB Logo" width="80" height="80"/>
   <img src="https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/express/express.png" alt="Express Logo" width="80" height="80"/>
   
-  <h1 align="center">Medical System 🏥</h1>
+  <h1 align="center">MediCare Portal 🏥</h1>
   
   <p align="center">
-    <strong>A Modern Healthcare Management Solution</strong>
+    <strong>A Modern Healthcare Management Platform</strong>
     <br />
-    <a href="https://github.com/kushal/medical-system"><strong>Explore the docs »</strong></a>
-    <br />
-    <br />
-    <a href="#">View Demo</a>
-    ·
-    <a href="#">Report Bug</a>
-    ·
-    <a href="#">Request Feature</a>
+    Built with React, Node.js, Express & MongoDB
   </p>
   
-  ![GitHub stars](https://img.shields.io/github/stars/kushal/medical-system?style=social)
-  ![GitHub forks](https://img.shields.io/github/forks/kushal/medical-system?style=social)
-  ![GitHub issues](https://img.shields.io/github/issues/kushal/medical-system)
-  ![GitHub license](https://img.shields.io/github/license/kushal/medical-system)
   ![Node Version](https://img.shields.io/badge/node-%3E%3D14.0.0-brightgreen)
   ![React Version](https://img.shields.io/badge/react-18.2.0-blue)
+  ![License](https://img.shields.io/badge/license-MIT-green)
 </div>
-
-<details open="open">
-<summary><strong>📋 Table of Contents</strong></summary>
-
-- [✨ Features](#-features)
-- [🛠️ Tech Stack](#️-tech-stack)
-- [🚀 Getting Started](#-getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-  - [Running the Application](#running-the-application)
-- [📁 Project Structure](#-project-structure)
-- [🎯 Usage](#-usage)
-- [🤝 Contributing](#-contributing)
-- [📝 License](#-license)
-- [📬 Contact](#-contact)
-
-</details>
 
 ---
 
 ## ✨ Features
 
-<div align="center">
-  
-| 🏥 Patient Management | 💊 Prescription System | 📅 Appointment Scheduling |
-|:---------------------:|:----------------------:|:-------------------------:|
-| Easy patient record management | Digital prescription generation | Smart appointment booking |
-| 📊 Analytics Dashboard | 🔐 Secure Authentication | 📱 Responsive Design |
-| Real-time data visualization | Role-based access control | Mobile-friendly interface |
+### 👨‍⚕️ Doctor Portal
+- **Dashboard** — Real-time stats (patient count, prescriptions issued) pulled from MongoDB
+- **Medicine Database** — Add, search, and manage medicines stored in MongoDB
+- **Patient Database** — View and manage all registered patients
+- **Prescription Generator** — Create prescriptions with AI-suggested medicines, live preview, PDF download, and print support
+- **My Patients** — View and manage patients assigned to the logged-in doctor
+- **Lab Reports** — Create and manage lab test reports
+- **Report AI** — AI-powered medical report analysis module
+- **Profile Management** — Edit personal, professional, and practice info with profile image upload
+- **Export Database** — Export full doctor/patient database to Excel (.xlsx)
 
-</div>
+### 🧑‍💼 Patient Portal
+- **Overview Dashboard** — Active prescriptions, medical records count, assigned doctor, blood group, and **BMI Calculator** (auto-computed from height/weight with color-coded status)
+- **Prescriptions Tab** — View all prescriptions issued by the doctor with medicines, dosage, and instructions
+- **Medical Records Tab** — Complete medical history with condition, diagnosis date, and notes
+- **Appointments Tab** — View assigned doctor's contact info for scheduling
+- **Profile Management** — Edit personal, medical, contact, and insurance info with profile image upload
 
-- **Patient Records**: Securely store and manage patient information
-- **Prescription Management**: Generate and track digital prescriptions
-- **Appointment System**: Schedule and manage patient appointments
-- **Inventory Tracking**: Monitor medicine stock levels
-- **Billing & Invoices**: Generate and track payments
-- **Reports & Analytics**: Visual insights and data analysis
+### 🤖 AI Chatbot (MediBot)
+- Medical AI assistant available on all dashboard pages
+- Symptom-based medicine suggestions
+- Medication info, dosage guidelines, and condition-specific advice
+
+### 🔐 Authentication & Security
+- Separate Doctor/Patient registration and login flows
+- JWT-based authentication with role-based access control
+- bcrypt password hashing
+- Protected routes by user role
+
+---
 
 ## 🛠️ Tech Stack
 
-<div align="center">
-  
-### Frontend
-![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)
-![React Router](https://img.shields.io/badge/React_Router-CA4245?style=for-the-badge&logo=react-router&logoColor=white)
-![Redux](https://img.shields.io/badge/redux-%23593d88.svg?style=for-the-badge&logo=redux&logoColor=white)
-![TailwindCSS](https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white)
+| Layer | Technologies |
+|-------|-------------|
+| **Frontend** | React 18, React Router v6, CSS3, Font Awesome, jsPDF, XLSX |
+| **Backend** | Node.js, Express.js, JWT, bcryptjs |
+| **Database** | MongoDB with Mongoose ODM |
+| **Tools** | Nodemon, Concurrently, Axios |
 
-### Backend
-![NodeJS](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white)
-![Express.js](https://img.shields.io/badge/express.js-%23404d59.svg?style=for-the-badge&logo=express&logoColor=%2361DAFB)
-![JWT](https://img.shields.io/badge/JWT-black?style=for-the-badge&logo=JSON%20web%20tokens)
-
-### Database
-![MongoDB](https://img.shields.io/badge/MongoDB-%234ea94b.svg?style=for-the-badge&logo=mongodb&logoColor=white)
-![Redis](https://img.shields.io/badge/redis-%23DD0031.svg?style=for-the-badge&logo=redis&logoColor=white)
-
-### DevOps & Tools
-![Git](https://img.shields.io/badge/git-%23F05033.svg?style=for-the-badge&logo=git&logoColor=white)
-![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
-![Postman](https://img.shields.io/badge/Postman-FF6C37?style=for-the-badge&logo=postman&logoColor=white)
-
-</div>
+---
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 
-Before you begin, ensure you have the following installed:
-- **Node.js** (v14 or higher) 
-- **npm** or **yarn**
-- **MongoDB** (local or Atlas)
-- **Git** (for cloning the repository)
+- **Node.js** v14+
+- **MongoDB** (local or [Atlas](https://www.mongodb.com/atlas))
+- **Git**
+
+### Installation
 
 ```bash
-# Check your versions
-node --version
-npm --version
-mongod --version
-git --version
+# Clone the repository
+git clone https://github.com/Kushagra901/medical-portal.git
+cd medical-portal
 
+# Install frontend dependencies
+npm install
 
+# Install backend dependencies
+cd backend
+npm install
+```
 
+### Environment Variables
 
+Create a `backend/.env` file:
 
+```env
+MONGODB_URI=your_mongodb_connection_string
+JWT_SECRET=your_secret_key
+JWT_EXPIRE=30d
+PORT=5000
+```
 
+### Running the Application
 
+Open **two terminals**:
 
+```bash
+# Terminal 1 — Backend (runs on port 5000)
+cd backend
+npm run dev
 
+# Terminal 2 — Frontend (runs on port 3000)
+cd ..
+npm start
+```
 
+Then open **http://localhost:3000** in your browser.
 
+---
 
+## 📁 Project Structure
 
+```
+medical-portal/
+├── backend/
+│   ├── config/          # MongoDB connection
+│   ├── controllers/     # API logic (doctor, patient, medicine, prescription)
+│   ├── middleware/       # JWT auth & role authorization
+│   ├── models/          # Mongoose schemas (Doctor, Patient, Medicine, Prescription)
+│   ├── routes/          # Express routes + export routes
+│   └── server.js        # Entry point
+├── src/
+│   ├── components/
+│   │   ├── Auth/        # Login, Signup, PrivateRoute
+│   │   ├── Chatbot/     # MediBot AI assistant
+│   │   ├── Common/      # ImageUpload component
+│   │   ├── DoctorPatients/ # My Patients management
+│   │   ├── LabReport/   # Lab test reports
+│   │   ├── MedicineDB/  # Medicine database CRUD
+│   │   ├── PatientDB/   # Patient database
+│   │   └── Prescription/ # Prescription generator + preview
+│   ├── pages/           # Landing, Login, Doctor/Patient dashboards
+│   └── services/        # API clients, auth helpers, export service
+├── public/
+└── package.json
+```
 
+---
+
+## 🎯 Key Highlights
+
+| Feature | Why It's Unique |
+|---------|----------------|
+| **BMI Calculator** | Auto-computes from patient height/weight with color-coded badge (Underweight, Normal, Overweight, Obese) |
+| **AI Medicine Suggestions** | Diagnosis-based medicine recommendations from both a mapping and the live medicine DB |
+| **Real-time Dashboard** | All stats are live from MongoDB — no hardcoded numbers |
+| **Dual Portal System** | Completely separate doctor and patient experiences with role-based routing |
+| **Export to Excel** | One-click export of the entire database with sanitized data |
+| **MediBot AI** | Context-aware chatbot with medical knowledge for doctor assistance |
+
+---
+
+## 📝 License
+
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+
+---
+
+<div align="center">
+  <p>Made with ❤️ by <a href="https://github.com/Kushagra901">Kushagra</a></p>
+</div>

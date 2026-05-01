@@ -29,6 +29,14 @@ exports.registerDoctor = async (req, res) => {
       });
     }
 
+    // Extract longitude and latitude if provided
+    if (req.body.longitude && req.body.latitude) {
+      req.body.location = {
+        type: 'Point',
+        coordinates: [parseFloat(req.body.longitude), parseFloat(req.body.latitude)]
+      };
+    }
+
     // Create doctor
     const doctor = await Doctor.create(req.body);
     console.log('Doctor created:', doctor._id);
@@ -167,9 +175,17 @@ exports.getMe = async (req, res) => {
 // @route   PUT /api/doctors/:id
 exports.updateDoctor = async (req, res) => {
   try {
+    const updateData = { ...req.body };
+    if (updateData.longitude && updateData.latitude) {
+      updateData.location = {
+        type: 'Point',
+        coordinates: [parseFloat(updateData.longitude), parseFloat(updateData.latitude)]
+      };
+    }
+
     const doctor = await Doctor.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      updateData,
       { new: true, runValidators: true }
     );
     
@@ -287,6 +303,45 @@ exports.addPatientNote = async (req, res) => {
     });
   } catch (error) {
     console.error('Add note error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// @desc    Get nearby doctors based on geolocation
+// @route   GET /api/doctors/nearby
+exports.getNearbyDoctors = async (req, res) => {
+  try {
+    const { longitude, latitude, maxDistance = 50000 } = req.query; // maxDistance default 50km
+    
+    if (!longitude || !latitude) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide longitude and latitude'
+      });
+    }
+
+    const doctors = await Doctor.find({
+      location: {
+        $near: {
+          $geometry: {
+            type: 'Point',
+            coordinates: [parseFloat(longitude), parseFloat(latitude)]
+          },
+          $maxDistance: parseInt(maxDistance)
+        }
+      }
+    });
+
+    res.status(200).json({
+      success: true,
+      count: doctors.length,
+      data: doctors
+    });
+  } catch (error) {
+    console.error('Get nearby doctors error:', error);
     res.status(500).json({
       success: false,
       message: error.message
