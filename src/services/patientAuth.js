@@ -9,7 +9,6 @@ export const patientSignup = async (patientData) => {
     console.log('Signup response:', response.data);
     
     if (response.data.success) {
-      localStorage.setItem('token', response.data.token);
       localStorage.setItem('patientUser', JSON.stringify(response.data.user));
       return response.data.user;
     }
@@ -24,7 +23,6 @@ export const patientLogin = async (email, password) => {
   try {
     const response = await api.post('/patients/login', { email, password });
     if (response.data.success) {
-      localStorage.setItem('token', response.data.token);
       localStorage.setItem('patientUser', JSON.stringify(response.data.user));
       return response.data.user;
     }
@@ -34,7 +32,12 @@ export const patientLogin = async (email, password) => {
 };
 
 // Patient Logout
-export const patientLogout = () => {
+export const patientLogout = async () => {
+  try {
+    await api.post('/patients/logout');
+  } catch (error) {
+    console.error('Logout error:', error);
+  }
   localStorage.removeItem('token');
   localStorage.removeItem('patientUser');
 };
@@ -50,9 +53,28 @@ export const getCurrentPatient = getStoredPatient;
 // Update patient profile
 export const updatePatientProfile = async (id, profileData) => {
   try {
-    const response = await api.put(`/patients/${id}`, profileData);
+    let updatedProfileData = { ...profileData };
+
+    // Upload base64 image via dedicated profile image endpoint
+    if (profileData.profileImage && profileData.profileImage.startsWith('data:image')) {
+      const imgResponse = await fetch(profileData.profileImage);
+      const blob = await imgResponse.blob();
+      const file = new File([blob], 'profile.jpg', { type: 'image/jpeg' });
+
+      const formData = new FormData();
+      formData.append('profileImage', file);
+
+      const uploadResponse = await api.put(`/patients/profile-image/${id}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      updatedProfileData.profileImage = uploadResponse.data.imageUrl;
+    }
+
+    const response = await api.put(`/patients/${id}`, updatedProfileData);
     if (response.data.success) {
-      const updatedUser = { ...getStoredPatient(), ...profileData };
+      const updatedUser = { ...getStoredPatient(), ...updatedProfileData };
       localStorage.setItem('patientUser', JSON.stringify(updatedUser));
       return updatedUser;
     }

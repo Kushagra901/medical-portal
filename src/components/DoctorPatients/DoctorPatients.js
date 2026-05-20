@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { getMyPatients, searchMyPatients } from '../../services/patientService';
+import Pagination from '../Common/Pagination';
 import './DoctorPatients.css';
+
 
 const DoctorPatients = () => {
   const [patients, setPatients] = useState([]);
@@ -8,15 +10,20 @@ const DoctorPatients = () => {
   const [loading, setLoading] = useState(true);
   const [selectedPatient, setSelectedPatient] = useState(null);
 
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
   useEffect(() => {
-    fetchPatients();
+    fetchPatients(1);
   }, []);
 
-  const fetchPatients = async () => {
+  const fetchPatients = async (pageNum = 1) => {
     setLoading(true);
     try {
-      const data = await getMyPatients();
-      setPatients(data);
+      const response = await getMyPatients(pageNum, 12);
+      setPatients(response.data || []);
+      setTotalPages(response.totalPages || 1);
+      setPage(response.page || pageNum);
     } catch (error) {
       console.error('Error fetching patients:', error);
     } finally {
@@ -83,52 +90,55 @@ const DoctorPatients = () => {
           <span>Patients will appear here once assigned</span>
         </div>
       ) : (
-        <div className="patients-grid">
-          {patients.map(patient => (
-            <div key={patient._id} className="patient-card">
-              <div className="patient-avatar">
-                {patient.profileImage ? (
-                  <img src={patient.profileImage} alt={patient.name} />
-                ) : (
-                  <div className="avatar-initials">
-                    {getInitials(patient.name)}
-                  </div>
-                )}
+        <>
+          <div className="patients-grid">
+            {patients.map(patient => (
+              <div key={patient._id} className="patient-card">
+                <div className="patient-avatar">
+                  {patient.profileImage ? (
+                    <img src={patient.profileImage} alt={patient.name} />
+                  ) : (
+                    <div className="avatar-initials">
+                      {getInitials(patient.name)}
+                    </div>
+                  )}
+                </div>
+                <div className="patient-info">
+                  <h3>{patient.name}</h3>
+                  <p><i className="fas fa-envelope"></i> {patient.email}</p>
+                  <p><i className="fas fa-phone"></i> {patient.phone || 'Not provided'}</p>
+                  {patient.bloodGroup && (
+                    <p><i className="fas fa-tint"></i> Blood: {patient.bloodGroup}</p>
+                  )}
+                  <p><i className="fas fa-calendar"></i> Last Visit: {patient.lastVisit ? new Date(patient.lastVisit).toLocaleDateString() : 'Not yet'}</p>
+                </div>
+                <div className="patient-actions">
+                  <button 
+                    className="view-btn" 
+                    onClick={() => setSelectedPatient(patient)}
+                    title="View Details"
+                  >
+                    <i className="fas fa-eye"></i> View
+                  </button>
+                  <button 
+                    className="prescription-btn"
+                    title="Create Prescription"
+                    onClick={() => {/* Navigate to prescription with this patient */}}
+                  >
+                    <i className="fas fa-prescription"></i> Prescribe
+                  </button>
+                  <button 
+                    className="note-btn"
+                    title="Add Note"
+                  >
+                    <i className="fas fa-notes-medical"></i> Note
+                  </button>
+                </div>
               </div>
-              <div className="patient-info">
-                <h3>{patient.name}</h3>
-                <p><i className="fas fa-envelope"></i> {patient.email}</p>
-                <p><i className="fas fa-phone"></i> {patient.phone || 'Not provided'}</p>
-                {patient.bloodGroup && (
-                  <p><i className="fas fa-tint"></i> Blood: {patient.bloodGroup}</p>
-                )}
-                <p><i className="fas fa-calendar"></i> Last Visit: {patient.lastVisit ? new Date(patient.lastVisit).toLocaleDateString() : 'Not yet'}</p>
-              </div>
-              <div className="patient-actions">
-                <button 
-                  className="view-btn" 
-                  onClick={() => setSelectedPatient(patient)}
-                  title="View Details"
-                >
-                  <i className="fas fa-eye"></i> View
-                </button>
-                <button 
-                  className="prescription-btn"
-                  title="Create Prescription"
-                  onClick={() => {/* Navigate to prescription with this patient */}}
-                >
-                  <i className="fas fa-prescription"></i> Prescribe
-                </button>
-                <button 
-                  className="note-btn"
-                  title="Add Note"
-                >
-                  <i className="fas fa-notes-medical"></i> Note
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+          <Pagination page={page} totalPages={totalPages} onPageChange={fetchPatients} />
+        </>
       )}
 
       {/* Patient Details Modal */}

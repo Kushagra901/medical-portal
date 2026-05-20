@@ -10,6 +10,10 @@ import DoctorDashboardPage from './pages/DoctorDashboardPage';
 import PatientDashboardPage from './pages/PatientDashboardPage';
 import PrivateRoute from './components/Auth/PrivateRoute';
 import Chatbot from './components/Chatbot/Chatbot';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import AdminLoginPage from './pages/AdminLoginPage';
+import AdminDashboardPage from './pages/AdminDashboardPage';
+import FindDoctorsPage from './pages/FindDoctorsPage';
 import './App.css';
 
 function App() {
@@ -22,6 +26,16 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/doctor/auth" element={<DoctorAuthPage />} />
           <Route path="/patient/auth" element={<PatientAuthPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/admin/login" element={<AdminLoginPage />} />
+          <Route path="/find-doctors" element={<FindDoctorsPage />} />
+          
+          {/* Protected Routes - Admin */}
+          <Route path="/admin/dashboard" element={
+            <PrivateRoute role="admin">
+              <AdminDashboardPage />
+            </PrivateRoute>
+          } />
           
           {/* Original Dashboard (for backward compatibility) */}
           <Route path="/dashboard/*" element={

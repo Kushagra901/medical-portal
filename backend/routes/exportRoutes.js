@@ -1,13 +1,14 @@
 const express = require('express');
 const { protect } = require('../middleware/auth');
+const requireAdmin = require('../middleware/admin');
 const Doctor = require('../models/Doctor');
 const Patient = require('../models/Patient');
 const router = express.Router();
 
 // @desc    Get all data (patients and doctors) for Excel export
 // @route   GET /api/export/all-data
-// @access  Private (accessible to logged-in doctors)
-router.get('/all-data', protect, async (req, res) => {
+// @access  Private (accessible to admin doctors only)
+router.get('/all-data', protect, requireAdmin, async (req, res) => {
   try {
     // You can add logic here to restrict this to only 'admin' role if you have one,
     // but the prompt implies doctors should be able to download the DB.

@@ -1,13 +1,23 @@
 const Doctor = require('../models/Doctor');
 const Patient = require('../models/Patient');
 const jwt = require('jsonwebtoken');
+const paginate = require('../utils/paginate');
 
-// Generate JWT Token
-const generateToken = (id, role) => {
+
+// Generate Access JWT Token (short-lived)
+const generateAccessToken = (id, role) => {
   return jwt.sign({ id, role }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRE
+    expiresIn: '15m'
   });
 };
+
+// Generate Refresh JWT Token (long-lived)
+const generateRefreshToken = (id, role) => {
+  return jwt.sign({ id, role }, process.env.JWT_REFRESH_SECRET || 'superrefreshsecret', {
+    expiresIn: '30d'
+  });
+};
+
 
 // @desc    Register doctor
 // @route   POST /api/doctors/register
@@ -34,11 +44,25 @@ exports.registerDoctor = async (req, res) => {
     console.log('Doctor created:', doctor._id);
 
     // Generate token
-    const token = generateToken(doctor._id, 'doctor');
+    const token = generateAccessToken(doctor._id, 'doctor');
+    const refreshToken = generateRefreshToken(doctor._id, 'doctor');
+
+    res.cookie("doctorToken", token, {
+      httpOnly: true,
+      secure:   process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge:   15 * 60 * 1000 // 15 mins
+    });
+
+    res.cookie("doctorRefreshToken", refreshToken, {
+      httpOnly: true,
+      secure:   process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge:   30 * 24 * 60 * 60 * 1000 // 30 days
+    });
 
     res.status(201).json({
       success: true,
-      token,
       user: {
         id: doctor._id,
         name: doctor.name,
@@ -108,7 +132,22 @@ exports.loginDoctor = async (req, res) => {
     }
 
     // Generate token
-    const token = generateToken(doctor._id, 'doctor');
+    const token = generateAccessToken(doctor._id, 'doctor');
+    const refreshToken = generateRefreshToken(doctor._id, 'doctor');
+
+    res.cookie("doctorToken", token, {
+      httpOnly: true,
+      secure:   process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge:   15 * 60 * 1000 // 15 mins
+    });
+
+    res.cookie("doctorRefreshToken", refreshToken, {
+      httpOnly: true,
+      secure:   process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge:   30 * 24 * 60 * 60 * 1000 // 30 days
+    });
 
     // Remove password from output
     const doctorOutput = {
@@ -134,7 +173,6 @@ exports.loginDoctor = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      token,
       user: doctorOutput
     });
   } catch (error) {
@@ -197,13 +235,11 @@ exports.updateDoctor = async (req, res) => {
 // @route   GET /api/doctors/my-patients
 exports.getMyPatients = async (req, res) => {
   try {
-    const patients = await Patient.find({ doctorId: req.user.id })
-      .sort('-createdAt');
+    const result = await paginate(Patient, { doctorId: req.user.id }, req);
     
     res.status(200).json({
       success: true,
-      count: patients.length,
-      data: patients
+      ...result
     });
   } catch (error) {
     console.error('Get my patients error:', error);
@@ -292,4 +328,16 @@ exports.addPatientNote = async (req, res) => {
       message: error.message
     });
   }
+};
+
+// @desc    Logout doctor
+// @route   POST /api/doctors/logout
+// @access  Private
+exports.logoutDoctor = (req, res) => {
+  res.clearCookie("doctorToken");
+  res.clearCookie("doctorRefreshToken");
+  res.status(200).json({
+    success: true,
+    message: "Logged out successfully"
+  });
 };

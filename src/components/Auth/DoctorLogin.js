@@ -46,7 +46,7 @@ const DoctorLogin = ({ onSwitchToSignup }) => {
   // REMOVED handleDemoLogin function
 
   const handleForgotPassword = () => {
-    alert('Password reset functionality will be implemented soon.');
+    navigate('/forgot-password');
   };
 
   return (

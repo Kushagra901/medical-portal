@@ -78,6 +78,14 @@ const LandingPage = () => {
               <i className="fas fa-user-injured"></i>
               Patient Portal
             </button>
+            <button 
+              className="btn btn-outline-light btn-large"
+              onClick={() => navigate('/find-doctors')}
+              style={{ border: '2px solid white', background: 'rgba(255,255,255,0.1)', cursor: 'pointer' }}
+            >
+              <i className="fas fa-search"></i>
+              Find Doctor
+            </button>
           </div>
           <div className="hero-stats">
             {stats.map((stat, index) => (

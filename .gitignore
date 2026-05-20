@@ -89,5 +89,4 @@ credentials/
 *.token
 
 # Ignore other projects and test exports
-report-ai/
 *.xlsx

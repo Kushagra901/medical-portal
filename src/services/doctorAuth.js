@@ -7,7 +7,6 @@ export const doctorLogin = async (email, password) => {
     console.log('Login response:', response.data);
     
     if (response.data.success) {
-      localStorage.setItem('token', response.data.token);
       localStorage.setItem('doctorUser', JSON.stringify(response.data.user));
       return response.data.user;
     }
@@ -26,7 +25,6 @@ export const doctorSignup = async (doctorData) => {
     console.log('Signup response:', response.data);
     
     if (response.data.success) {
-      localStorage.setItem('token', response.data.token);
       localStorage.setItem('doctorUser', JSON.stringify(response.data.user));
       return response.data.user;
     }
@@ -37,7 +35,12 @@ export const doctorSignup = async (doctorData) => {
 };
 
 // Doctor Logout
-export const doctorLogout = () => {
+export const doctorLogout = async () => {
+  try {
+    await api.post('/doctors/logout');
+  } catch (error) {
+    console.error('Logout error:', error);
+  }
   localStorage.removeItem('token');
   localStorage.removeItem('doctorUser');
 };
@@ -53,9 +56,28 @@ export const getCurrentDoctor = getStoredDoctor;
 // Update doctor profile
 export const updateDoctorProfile = async (id, profileData) => {
   try {
-    const response = await api.put(`/doctors/${id}`, profileData);
+    let updatedProfileData = { ...profileData };
+
+    // Upload base64 image via dedicated profile image endpoint
+    if (profileData.profileImage && profileData.profileImage.startsWith('data:image')) {
+      const imgResponse = await fetch(profileData.profileImage);
+      const blob = await imgResponse.blob();
+      const file = new File([blob], 'profile.jpg', { type: 'image/jpeg' });
+
+      const formData = new FormData();
+      formData.append('profileImage', file);
+
+      const uploadResponse = await api.put(`/doctors/profile-image/${id}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      updatedProfileData.profileImage = uploadResponse.data.imageUrl;
+    }
+
+    const response = await api.put(`/doctors/${id}`, updatedProfileData);
     if (response.data.success) {
-      const updatedUser = { ...getStoredDoctor(), ...profileData };
+      const updatedUser = { ...getStoredDoctor(), ...updatedProfileData };
       localStorage.setItem('doctorUser', JSON.stringify(updatedUser));
       return updatedUser;
     }

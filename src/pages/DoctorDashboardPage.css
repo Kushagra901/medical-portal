@@ -668,3 +668,298 @@ textarea.edit-input {
 .edit-days-grid input[type="checkbox"] {
   cursor: pointer;
 }
+
+/* Doctor Appointments Styling */
+.appointments-tab-doctor {
+  background: white;
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+  border: 1px solid #e2e8f0;
+}
+
+.tab-header-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.tab-header-actions h2 {
+  margin: 0;
+  font-size: 20px;
+  color: #0f172a;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tab-header-actions h2 i {
+  color: #4f46e5;
+}
+
+.filters-row {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.filter-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.filter-item label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.filter-item select, .filter-item input {
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  border: 1.5px solid #cbd5e1;
+  font-family: inherit;
+  font-size: 13px;
+  color: #334155;
+  background: white;
+  outline: none;
+}
+
+.filter-item select:focus, .filter-item input:focus {
+  border-color: #4f46e5;
+}
+
+.no-appointments-card {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: #64748b;
+}
+
+.no-appointments-card i {
+  font-size: 3rem;
+  color: #cbd5e1;
+  margin-bottom: 1rem;
+}
+
+.no-appointments-card h3 {
+  margin: 0 0 0.5rem 0;
+  color: #334155;
+}
+
+.doctor-appointments-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+.appointment-card-doctor {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  border-left: 4px solid #94a3b8;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.appointment-card-doctor:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+}
+
+.appointment-card-doctor.status-pending { border-left-color: #f59e0b; }
+.appointment-card-doctor.status-confirmed { border-left-color: #10b981; }
+.appointment-card-doctor.status-cancelled { border-left-color: #ef4444; }
+.appointment-card-doctor.status-completed { border-left-color: #3b82f6; }
+
+.appointment-card-doctor .card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 0.75rem;
+}
+
+.appointment-card-doctor .card-header h4 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.appointment-card-doctor .card-header .pat-meta {
+  margin: 0.25rem 0 0 0;
+  font-size: 11px;
+  color: #64748b;
+}
+
+.status-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+}
+
+.status-badge.pending { background: #fffbeb; color: #d97706; }
+.status-badge.confirmed { background: #ecfdf5; color: #10b981; }
+.status-badge.cancelled { background: #fee2e2; color: #ef4444; }
+.status-badge.completed { background: #eff6ff; color: #3b82f6; }
+
+.appointment-card-doctor .card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 13px;
+  color: #475569;
+}
+
+.appointment-card-doctor .card-body p {
+  margin: 0;
+}
+
+.reason-text, .notes-text {
+  background: white;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  font-size: 12px;
+  margin-top: 0.5rem;
+}
+
+.complete-form-inline {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.complete-form-inline label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #475569;
+}
+
+.complete-form-inline textarea {
+  padding: 0.5rem;
+  border-radius: 8px;
+  border: 1.5px solid #cbd5e1;
+  font-family: inherit;
+  font-size: 13px;
+  resize: vertical;
+}
+
+.complete-form-inline textarea:focus {
+  border-color: #3b82f6;
+  outline: none;
+}
+
+.complete-form-inline .form-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-submit-notes {
+  flex: 1;
+  padding: 0.4rem;
+  border: none;
+  background: #3b82f6;
+  color: white;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-cancel-notes {
+  padding: 0.4rem 0.75rem;
+  border: 1.5px solid #cbd5e1;
+  background: white;
+  color: #475569;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.appointment-card-doctor .card-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: auto;
+}
+
+.appointment-card-doctor .card-actions button {
+  flex: 1;
+  padding: 0.5rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-confirm { background: #ecfdf5; color: #10b981; }
+.btn-confirm:hover { background: #10b981; color: white; }
+
+.btn-complete { background: #eff6ff; color: #3b82f6; }
+.btn-complete:hover { background: #3b82f6; color: white; }
+
+.btn-cancel { background: #fee2e2; color: #ef4444; }
+.btn-cancel:hover { background: #ef4444; color: white; }
+
+/* Responsive Mobile Sidebar overlay patterns */
+@media (max-width: 1024px) {
+  .menu-toggle-btn {
+    display: block !important;
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: #475569;
+    cursor: pointer;
+    margin-right: 0.5rem;
+  }
+
+  .dashboard-sidebar.doctor-sidebar {
+    position: fixed;
+    top: 0;
+    left: -280px;
+    bottom: 0;
+    width: 280px;
+    z-index: 9999;
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 10px 0 20px rgba(0, 0, 0, 0.15);
+  }
+
+  .dashboard-sidebar.doctor-sidebar.mobile-open {
+    left: 0;
+  }
+
+  .dashboard-main {
+    margin-left: 0 !important;
+    width: 100%;
+  }
+
+  .close-sidebar-btn {
+    display: block !important;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    position: absolute;
+    top: 25px;
+    right: 20px;
+  }
+}
+
+.close-sidebar-btn {
+  display: none;
+}

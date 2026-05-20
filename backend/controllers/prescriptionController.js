@@ -1,5 +1,8 @@
 const Prescription = require('../models/Prescription');
 const Patient = require('../models/Patient');
+const sendEmail = require('../utils/emailService');
+const paginate = require('../utils/paginate');
+
 
 // @desc    Create new prescription
 // @route   POST /api/prescriptions
@@ -13,6 +16,20 @@ exports.createPrescription = async (req, res) => {
     await Patient.findByIdAndUpdate(req.body.patientId, {
       lastVisit: new Date()
     });
+
+    // Email notification to patient
+    const patient = await Patient.findById(req.body.patientId).select('name email');
+    if (patient && patient.email) {
+      await sendEmail({
+        to:      patient.email,
+        subject: 'New Prescription — MediCare Portal',
+        html: `<h3>Prescription Created</h3>
+          <p>Dear ${patient.name},</p>
+          <p>Dr. ${req.user.name} has created a new prescription for you.</p>
+          <p>Log in to MediCare Portal to view and download your prescription.</p>
+          <p>Prescription ID: <strong>${prescription._id}</strong></p>`
+      });
+    }
 
     res.status(201).json({
       success: true,
@@ -30,13 +47,15 @@ exports.createPrescription = async (req, res) => {
 // @route   GET /api/prescriptions
 exports.getPrescriptions = async (req, res) => {
   try {
-    const prescriptions = await Prescription.find({ doctorId: req.user.id })
-      .populate('patientId', 'name phone')
-      .sort('-date');
+    const result = await paginate(
+      Prescription, 
+      { doctorId: req.user.id }, 
+      req, 
+      { path: 'patientId', select: 'name phone' }
+    );
     res.status(200).json({
       success: true,
-      count: prescriptions.length,
-      data: prescriptions
+      ...result
     });
   } catch (error) {
     res.status(500).json({
@@ -75,13 +94,15 @@ exports.getPrescription = async (req, res) => {
 // @route   GET /api/prescriptions/patient/:patientId
 exports.getPatientPrescriptions = async (req, res) => {
   try {
-    const prescriptions = await Prescription.find({ 
-      patientId: req.params.patientId 
-    }).populate('doctorId', 'name specialization');
+    const result = await paginate(
+      Prescription,
+      { patientId: req.params.patientId },
+      req,
+      { path: 'doctorId', select: 'name specialization' }
+    );
     res.status(200).json({
       success: true,
-      count: prescriptions.length,
-      data: prescriptions
+      ...result
     });
   } catch (error) {
     res.status(500).json({

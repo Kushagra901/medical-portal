@@ -1,15 +1,13 @@
 const jwt = require('jsonwebtoken');
 const Doctor = require('../models/Doctor');
 const Patient = require('../models/Patient');
+const Admin = require('../models/Admin');
 
-// Protect routes
 exports.protect = async (req, res, next) => {
-  let token;
+  let token = req.cookies.adminToken || req.cookies.doctorToken || req.cookies.patientToken;
 
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith('Bearer')
-  ) {
+  // Fallback to Bearer token for api tests or backward compatibility
+  if (!token && req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     token = req.headers.authorization.split(' ')[1];
   }
 
@@ -23,8 +21,10 @@ exports.protect = async (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // Check if it's doctor or patient
-    if (decoded.role === 'doctor') {
+    // Check role and load user
+    if (decoded.role === 'admin') {
+      req.user = await Admin.findById(decoded.id);
+    } else if (decoded.role === 'doctor') {
       req.user = await Doctor.findById(decoded.id);
     } else {
       req.user = await Patient.findById(decoded.id);

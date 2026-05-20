@@ -17,7 +17,7 @@ const PatientSchema = new mongoose.Schema({
   address: { type: String, default: null },
   insuranceProvider: { type: String, default: null },
   insuranceId: { type: String, default: null },
-  profileImage: { type: String, default: null },
+  profileImage: { type: String, default: '' },
   role: { type: String, default: 'patient' },
   doctorId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -31,6 +31,8 @@ const PatientSchema = new mongoose.Schema({
     notes: String,
     recordedAt: { type: Date, default: Date.now }
   }],
+  resetOtp:       { type: String },
+  resetOtpExpiry: { type: Date },
   lastVisit: { type: Date, default: null },
   createdAt: { type: Date, default: Date.now }
 });

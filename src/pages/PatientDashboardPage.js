@@ -3,9 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import { getStoredPatient, patientLogout, updatePatientProfile } from '../services/patientAuth';
 import { getMyDoctor } from '../services/patientService';
 import { getPatientPrescriptions } from '../services/prescriptionService';
+import { 
+  getPatientAppointments, getAvailableSlots, createAppointment, cancelAppointment 
+} from '../services/appointmentService';
+import api from '../services/api';
+import NotificationBell from '../components/Common/NotificationBell';
 import ImageUpload from '../components/Common/ImageUpload';
 import { QRCodeSVG } from 'qrcode.react';
+import Pagination from '../components/Common/Pagination';
 import './PatientDashboardPage.css';
+
 
 // ── BMI helper ──────────────────────────────────────────────────────────────
 const getBMI = (height, weight) => {
@@ -32,9 +39,22 @@ const PatientDashboardPage = () => {
   const [myDoctor, setMyDoctor]             = useState(null);
   const [prescriptions, setPrescriptions]   = useState([]);
   const [loadingRx, setLoadingRx]           = useState(true);
+  const [rxPage, setRxPage]                 = useState(1);
+  const [rxTotalPages, setRxTotalPages]     = useState(1);
+  const [appointmentsPage, setAppointmentsPage] = useState(1);
+  const [appointmentsTotalPages, setAppointmentsTotalPages] = useState(1);
   const [nearbyDoctors, setNearbyDoctors]   = useState([]);
   const [locating, setLocating]             = useState(false);
   const [locationError, setLocationError]   = useState('');
+  const [appointments, setAppointments]     = useState([]);
+  const [doctorsList, setDoctorsList]       = useState([]);
+  const [selectedDoctor, setSelectedDoctor] = useState(null);
+  const [appointmentDate, setAppointmentDate] = useState('');
+  const [availableSlots, setAvailableSlots] = useState([]);
+  const [selectedSlot, setSelectedSlot]     = useState('');
+  const [reason, setReason]                 = useState('');
+  const [bookingLoading, setBookingLoading] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate                            = useNavigate();
 
   // ── Fetch assigned doctor ────────────────────────────────────────────────
@@ -48,17 +68,58 @@ const PatientDashboardPage = () => {
   }, []);
 
   // ── Fetch prescriptions ──────────────────────────────────────────────────
-  const fetchPrescriptions = useCallback(async (patientId) => {
+  const fetchPrescriptions = useCallback(async (patientId, pageNum = 1) => {
     try {
       setLoadingRx(true);
-      const data = await getPatientPrescriptions(patientId);
-      setPrescriptions(data || []);
+      const response = await getPatientPrescriptions(patientId, pageNum, 5);
+      setPrescriptions(response.data || []);
+      setRxTotalPages(response.totalPages || 1);
+      setRxPage(response.page || pageNum);
     } catch {
       setPrescriptions([]);
     } finally {
       setLoadingRx(false);
     }
   }, []);
+
+  const fetchAppointments = useCallback(async (pageNum = 1) => {
+    try {
+      const response = await getPatientAppointments(pageNum, 5);
+      setAppointments(response.data || []);
+      setAppointmentsTotalPages(response.totalPages || 1);
+      setAppointmentsPage(response.page || pageNum);
+    } catch (err) {
+      console.error(err);
+    }
+  }, []);
+
+  const fetchDoctors = useCallback(async () => {
+    try {
+      const response = await api.get('/doctors');
+      if (response.data.success) {
+        setDoctorsList(response.data.doctors);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }, []);
+
+  // Fetch slots when doctor or date changes
+  useEffect(() => {
+    if (selectedDoctor && appointmentDate) {
+      getAvailableSlots(selectedDoctor._id, appointmentDate)
+        .then(slots => {
+          setAvailableSlots(slots);
+          setSelectedSlot('');
+        })
+        .catch(err => {
+          console.error(err);
+          setAvailableSlots([]);
+        });
+    } else {
+      setAvailableSlots([]);
+    }
+  }, [selectedDoctor, appointmentDate]);
 
   useEffect(() => {
     const currentPatient = getStoredPatient();
@@ -67,13 +128,137 @@ const PatientDashboardPage = () => {
     } else {
       setPatient(currentPatient);
       fetchMyDoctor();
-      fetchPrescriptions(currentPatient.id);
+      fetchPrescriptions(currentPatient.id, 1);
+      fetchAppointments(1);
+      fetchDoctors();
+
+      // Check for selected doctor redirection
+      const preselected = localStorage.getItem('selectedDoctorForBooking');
+      if (preselected) {
+        try {
+          const docObj = JSON.parse(preselected);
+          setSelectedDoctor(docObj);
+          setActiveTab('appointments');
+        } catch (e) {}
+        localStorage.removeItem('selectedDoctorForBooking');
+      }
     }
-  }, [navigate, fetchMyDoctor, fetchPrescriptions]);
+  }, [navigate, fetchMyDoctor, fetchPrescriptions, fetchAppointments, fetchDoctors]);
 
   const handleLogout = () => {
     patientLogout();
     navigate('/patient/auth');
+  };
+
+  const handleCancelAppointment = async (id) => {
+    if (!window.confirm("Are you sure you want to cancel this appointment?")) return;
+    try {
+      await cancelAppointment(id);
+      alert("Appointment cancelled successfully.");
+      fetchAppointments(appointmentsPage);
+    } catch (e) {
+      alert("Failed to cancel appointment.");
+    }
+  };
+
+  const handleBookAppointment = async (e) => {
+    e.preventDefault();
+    if (!selectedDoctor || !appointmentDate || !selectedSlot) {
+      alert('Please fill out all fields.');
+      return;
+    }
+    setBookingLoading(true);
+
+    try {
+      // 1. Create temporary booking/order
+      const bookingData = {
+        doctorId: selectedDoctor._id,
+        date: appointmentDate,
+        timeSlot: selectedSlot,
+        reason
+      };
+
+      // Let's call /api/payments/order first
+      const orderResponse = await api.post('/payments/order', {
+        amount: selectedDoctor.consultationFee || 500
+      });
+
+      if (orderResponse.data.success) {
+        const { orderId, amount, currency, keyId } = orderResponse.data;
+
+        // Open Razorpay Checkout modal
+        const options = {
+          key: keyId,
+          amount,
+          currency,
+          name: 'MediCare Portal',
+          description: `Consultation fee for Dr. ${selectedDoctor.name}`,
+          order_id: orderId,
+          handler: async function (response) {
+            // Verification and final appointment booking on frontend
+            try {
+              const verifyResponse = await api.post('/payments/verify', {
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                appointmentData: bookingData
+              });
+
+              if (verifyResponse.data.success) {
+                alert('Appointment booked successfully! Payment verified.');
+                setSelectedDoctor(null);
+                setAppointmentDate('');
+                setSelectedSlot('');
+                setReason('');
+                fetchAppointments(1);
+              } else {
+                alert('Payment verification failed.');
+              }
+            } catch (err) {
+              console.error(err);
+              alert('Error verifying payment.');
+            }
+          },
+          prefill: {
+            name: patient?.name,
+            email: patient?.email,
+            contact: patient?.phone
+          },
+          theme: {
+            color: '#4f46e5'
+          }
+        };
+
+        const rzp = new window.Razorpay(options);
+        rzp.open();
+      } else {
+        // Fallback if payments not setup (e.g. key missing)
+        throw new Error("Payment initialization failed. Trying standard booking...");
+      }
+    } catch (err) {
+      console.warn("Payment error or bypassed. Falling back to standard booking.", err);
+      // Fallback booking without payment verification (graceful degradation)
+      try {
+        const res = await createAppointment({
+          doctorId: selectedDoctor._id,
+          date: appointmentDate,
+          timeSlot: selectedSlot,
+          reason
+        });
+        if (res) {
+          alert('Appointment booked successfully (Standard Offline Mode).');
+          setSelectedDoctor(null);
+          setAppointmentDate('');
+          setSelectedSlot('');
+          setReason('');
+          fetchAppointments(1);
+        }
+      } catch (innerErr) {
+        alert(innerErr.response?.data?.message || 'Failed to book appointment.');
+      }
+    } finally {
+      setBookingLoading(false);
+    }
   };
 
   const handleFindNearby = () => {
@@ -172,13 +357,16 @@ const PatientDashboardPage = () => {
   const bmiInfo = bmi ? getBMICategory(bmi) : null;
 
   return (
-    <div className="patient-dashboard">
+    <div className={`patient-dashboard ${mobileMenuOpen ? 'sidebar-visible' : ''}`}>
       {/* ── Sidebar ───────────────────────────────────────────────────── */}
-      <div className="dashboard-sidebar patient-sidebar">
+      <div className={`dashboard-sidebar patient-sidebar ${mobileMenuOpen ? 'mobile-open' : ''}`}>
         <div className="sidebar-header">
           <i className="fas fa-heartbeat"></i>
           <h3>MediCare</h3>
           <p>Patient Portal</p>
+          <button className="close-sidebar-btn" onClick={() => setMobileMenuOpen(false)}>
+            <i className="fas fa-times"></i>
+          </button>
         </div>
 
         <div className="patient-profile">
@@ -194,22 +382,22 @@ const PatientDashboardPage = () => {
         </div>
 
         <nav className="sidebar-nav">
-          <button className={activeTab === 'overview'      ? 'active' : ''} onClick={() => setActiveTab('overview')}>
+          <button className={activeTab === 'overview'      ? 'active' : ''} onClick={() => { setActiveTab('overview'); setMobileMenuOpen(false); }}>
             <i className="fas fa-home"></i> Overview
           </button>
-          <button className={activeTab === 'records'       ? 'active' : ''} onClick={() => setActiveTab('records')}>
+          <button className={activeTab === 'records'       ? 'active' : ''} onClick={() => { setActiveTab('records'); setMobileMenuOpen(false); }}>
             <i className="fas fa-file-medical"></i> Medical Records
           </button>
-          <button className={activeTab === 'prescriptions' ? 'active' : ''} onClick={() => setActiveTab('prescriptions')}>
+          <button className={activeTab === 'prescriptions' ? 'active' : ''} onClick={() => { setActiveTab('prescriptions'); setMobileMenuOpen(false); }}>
             <i className="fas fa-prescription"></i> Prescriptions
           </button>
-          <button className={activeTab === 'appointments'  ? 'active' : ''} onClick={() => setActiveTab('appointments')}>
+          <button className={activeTab === 'appointments'  ? 'active' : ''} onClick={() => { setActiveTab('appointments'); setMobileMenuOpen(false); }}>
             <i className="fas fa-calendar-check"></i> Appointments
           </button>
-          <button className={activeTab === 'nearby'       ? 'active' : ''} onClick={() => setActiveTab('nearby')}>
+          <button className={activeTab === 'nearby'       ? 'active' : ''} onClick={() => { setActiveTab('nearby'); setMobileMenuOpen(false); }}>
             <i className="fas fa-map-marker-alt"></i> Find Doctors
           </button>
-          <button className={activeTab === 'profile'       ? 'active' : ''} onClick={() => setActiveTab('profile')}>
+          <button className={activeTab === 'profile'       ? 'active' : ''} onClick={() => { setActiveTab('profile'); setMobileMenuOpen(false); }}>
             <i className="fas fa-user"></i> Profile
           </button>
         </nav>
@@ -221,9 +409,22 @@ const PatientDashboardPage = () => {
 
       {/* ── Main Content ───────────────────────────────────────────────── */}
       <div className="dashboard-main">
-        <div className="dashboard-header">
-          <h1>Welcome back, {patient.name}!</h1>
-          <p>{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+        <div className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', padding: '1.25rem 2rem', background: 'white', borderBottom: '1px solid #f1f5f9' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <button 
+              className="menu-toggle-btn" 
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              <i className="fas fa-bars"></i>
+            </button>
+            <div>
+              <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: '700', color: '#0f172a' }}>Welcome back, {patient.name}!</h1>
+              <p style={{ margin: '4px 0 0 0', color: '#64748b', fontSize: '13px' }}>{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+            <NotificationBell userId={patient.id} userType="patient" />
+          </div>
         </div>
 
         <div className="dashboard-content">
@@ -345,79 +546,204 @@ const PatientDashboardPage = () => {
                   <p>Prescriptions from your doctor will appear here.</p>
                 </div>
               ) : (
-                <div className="records-list">
-                  {prescriptions.map((rx, index) => (
-                    <div key={rx._id || index} className="record-item" style={{ marginBottom: '20px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                        <h4 style={{ margin: 0 }}>
-                          <i className="fas fa-prescription" style={{ color: '#2563EB', marginRight: '8px' }}></i>
-                          {rx.prescriptionId || `Prescription #${index + 1}`}
-                        </h4>
-                        <span style={{
-                          fontSize: '0.78rem', color: '#888', background: '#f1f5f9',
-                          padding: '2px 10px', borderRadius: '12px'
-                        }}>
-                          {rx.date ? new Date(rx.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : 'Unknown date'}
-                        </span>
-                      </div>
-                      {rx.diagnosis && (
-                        <p style={{ color: '#555', marginBottom: '10px' }}>
-                          <strong>Diagnosis:</strong> {rx.diagnosis}
-                        </p>
-                      )}
-                      {rx.medicines && rx.medicines.length > 0 && (
-                        <div>
-                          <p style={{ fontWeight: '600', marginBottom: '6px', color: '#374151' }}>Medications:</p>
-                          {rx.medicines.map((med, i) => (
-                            <div key={i} style={{
-                              display: 'flex', gap: '12px', padding: '6px 12px',
-                              background: '#EFF6FF', borderRadius: '8px', marginBottom: '6px',
-                              borderLeft: '3px solid #2563EB'
-                            }}>
-                              <strong>{med.name}</strong>
-                              {med.dosage && <span style={{ color: '#666' }}>— {med.dosage}</span>}
-                              {med.duration && <span style={{ color: '#888', fontSize: '0.85rem' }}>for {med.duration}</span>}
-                            </div>
-                          ))}
+                <>
+                  <div className="records-list">
+                    {prescriptions.map((rx, index) => (
+                      <div key={rx._id || index} className="record-item" style={{ marginBottom: '20px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                          <h4 style={{ margin: 0 }}>
+                            <i className="fas fa-prescription" style={{ color: '#2563EB', marginRight: '8px' }}></i>
+                            {rx.prescriptionId || `Prescription #${index + 1}`}
+                          </h4>
+                          <span style={{
+                            fontSize: '0.78rem', color: '#888', background: '#f1f5f9',
+                            padding: '2px 10px', borderRadius: '12px'
+                          }}>
+                            {rx.date ? new Date(rx.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : 'Unknown date'}
+                          </span>
                         </div>
-                      )}
-                      {rx.notes && (
-                        <p style={{ marginTop: '8px', color: '#888', fontStyle: 'italic', fontSize: '0.9rem' }}>
-                          <i className="fas fa-notes-medical" style={{ marginRight: '6px' }}></i>{rx.notes}
-                        </p>
-                      )}
-                    </div>
-                  ))}
-                </div>
+                        {rx.diagnosis && (
+                          <p style={{ color: '#555', marginBottom: '10px' }}>
+                            <strong>Diagnosis:</strong> {rx.diagnosis}
+                          </p>
+                        )}
+                        {rx.medicines && rx.medicines.length > 0 && (
+                          <div>
+                            <p style={{ fontWeight: '600', marginBottom: '6px', color: '#374151' }}>Medications:</p>
+                            {rx.medicines.map((med, i) => (
+                              <div key={i} style={{
+                                display: 'flex', gap: '12px', padding: '6px 12px',
+                                background: '#EFF6FF', borderRadius: '8px', marginBottom: '6px',
+                                borderLeft: '3px solid #2563EB'
+                              }}>
+                                <strong>{med.name}</strong>
+                                {med.dosage && <span style={{ color: '#666' }}>— {med.dosage}</span>}
+                                {med.duration && <span style={{ color: '#888', fontSize: '0.85rem' }}>for {med.duration}</span>}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        {rx.notes && (
+                          <p style={{ marginTop: '8px', color: '#888', fontStyle: 'italic', fontSize: '0.9rem' }}>
+                            <i className="fas fa-notes-medical" style={{ marginRight: '6px' }}></i>{rx.notes}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  <Pagination 
+                    page={rxPage} 
+                    totalPages={rxTotalPages} 
+                    onPageChange={(page) => fetchPrescriptions(patient?.id || patient?._id, page)} 
+                  />
+                </>
               )}
             </div>
           )}
 
           {/* ── Appointments Tab ─────────────────────────────────────── */}
           {activeTab === 'appointments' && (
-            <div className="appointments-tab">
-              <h2><i className="fas fa-calendar-check"></i> Appointments</h2>
-              <div style={{ textAlign: 'center', padding: '60px 20px', color: '#888' }}>
-                <i className="fas fa-calendar-alt" style={{ fontSize: '3rem', marginBottom: '16px', display: 'block', color: '#d1d5db' }}></i>
-                <h3>No Upcoming Appointments</h3>
-                <p>Contact your doctor to schedule an appointment.</p>
-                {myDoctor && (
-                  <div style={{
-                    marginTop: '24px', padding: '20px', background: '#EFF6FF',
-                    borderRadius: '12px', display: 'inline-block', textAlign: 'left', minWidth: '260px'
-                  }}>
-                    <p style={{ fontWeight: '600', color: '#2563EB', marginBottom: '8px' }}>
-                      <i className="fas fa-user-md" style={{ marginRight: '8px' }}></i>Your Doctor
-                    </p>
-                    <p style={{ margin: '4px 0', color: '#374151' }}><strong>Dr. {myDoctor.name}</strong></p>
-                    <p style={{ margin: '4px 0', color: '#666', fontSize: '0.9rem' }}>{myDoctor.specialization}</p>
-                    {myDoctor.phone && (
-                      <p style={{ margin: '4px 0', color: '#666', fontSize: '0.9rem' }}>
-                        <i className="fas fa-phone" style={{ marginRight: '6px' }}></i>{myDoctor.phone}
-                      </p>
+            <div className="appointments-tab animate-fade-in">
+              <div className="appointments-split-layout">
+                {/* Book Form */}
+                <div className="booking-card-modern">
+                  <h3><i className="fas fa-calendar-plus"></i> Book Consultation</h3>
+                  <form onSubmit={handleBookAppointment}>
+                    <div className="form-group-modern">
+                      <label>Select Specialist</label>
+                      <select 
+                        value={selectedDoctor?._id || ''} 
+                        onChange={(e) => {
+                          const doc = doctorsList.find(d => d._id === e.target.value);
+                          setSelectedDoctor(doc || null);
+                        }}
+                        required
+                      >
+                        <option value="">Choose a Doctor...</option>
+                        {doctorsList.map(doc => (
+                          <option key={doc._id} value={doc._id}>
+                            Dr. {doc.name} ({doc.specialization}) — INR {doc.consultationFee || 500}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="form-group-modern">
+                      <label>Appointment Date</label>
+                      <input 
+                        type="date" 
+                        min={new Date().toISOString().split('T')[0]}
+                        value={appointmentDate}
+                        onChange={(e) => setAppointmentDate(e.target.value)}
+                        required
+                      />
+                    </div>
+
+                    {selectedDoctor && appointmentDate && (
+                      <div className="form-group-modern">
+                        <label>Available Slots</label>
+                        {availableSlots.length === 0 ? (
+                          <p className="no-slots-msg">No slots available for this date.</p>
+                        ) : (
+                          <div className="slots-grid">
+                            {availableSlots.map(slot => (
+                              <button
+                                key={slot}
+                                type="button"
+                                className={`slot-pill ${selectedSlot === slot ? 'active' : ''}`}
+                                onClick={() => setSelectedSlot(slot)}
+                              >
+                                {slot}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     )}
-                  </div>
-                )}
+
+                    <div className="form-group-modern">
+                      <label>Reason for Visit</label>
+                      <textarea
+                        placeholder="Describe your symptoms or reason for visit"
+                        value={reason}
+                        onChange={(e) => setReason(e.target.value)}
+                        rows={3}
+                      />
+                    </div>
+
+                    <button 
+                      type="submit" 
+                      className="btn-book-submit" 
+                      disabled={bookingLoading || !selectedSlot}
+                    >
+                      {bookingLoading ? (
+                        <><i className="fas fa-spinner fa-spin"></i> Initializing Gateway...</>
+                      ) : (
+                        <><i className="fas fa-credit-card"></i> Pay & Confirm Appointment</>
+                      )}
+                    </button>
+                  </form>
+                </div>
+
+                {/* Booked Appointments Queue */}
+                <div className="bookings-list-modern">
+                  <h3><i className="fas fa-calendar-alt"></i> My Schedule</h3>
+                  {appointments.length === 0 ? (
+                    <div className="no-bookings">
+                      <i className="fas fa-calendar-times"></i>
+                      <p>You have no scheduled consultations.</p>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="bookings-scroll">
+                        {appointments.map(appt => (
+                          <div key={appt._id} className={`booking-row-card status-${appt.status}`}>
+                            <div className="row-header">
+                              <div>
+                                <h4>Dr. {appt.doctorId?.name}</h4>
+                                <p className="spec">{appt.doctorId?.specialization}</p>
+                              </div>
+                              <span className={`status-pill ${appt.status}`}>
+                                {appt.status.toUpperCase()}
+                              </span>
+                            </div>
+                            
+                            <div className="row-meta">
+                              <p>
+                                <i className="fas fa-calendar-day"></i> {new Date(appt.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
+                              </p>
+                              <p>
+                                <i className="fas fa-clock"></i> {appt.timeSlot}
+                              </p>
+                            </div>
+  
+                            {appt.reason && (
+                              <p className="appt-reason"><strong>Reason:</strong> {appt.reason}</p>
+                            )}
+  
+                            {appt.notes && (
+                              <p className="appt-notes"><strong>Doctor Notes:</strong> {appt.notes}</p>
+                            )}
+  
+                            {['pending', 'confirmed'].includes(appt.status) && (
+                              <button 
+                                className="btn-cancel-appt" 
+                                onClick={() => handleCancelAppointment(appt._id)}
+                              >
+                                Cancel Booking
+                              </button>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                      <Pagination 
+                        page={appointmentsPage} 
+                        totalPages={appointmentsTotalPages} 
+                        onPageChange={fetchAppointments} 
+                      />
+                    </>
+                  )}
+                </div>
               </div>
             </div>
           )}

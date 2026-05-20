@@ -18,8 +18,11 @@ const DoctorSchema = new mongoose.Schema({
   availableTime: { type: String, required: true },
   address: { type: String, required: true },
   bio: { type: String, default: '' },
-  profileImage: { type: String, default: null },
-  role: { type: String, default: 'doctor' },
+  profileImage: { type: String, default: '' },
+  role: { type: String, enum: ['doctor', 'admin'], default: 'doctor' },
+  isVerified: { type: Boolean, default: false },
+  resetOtp:       { type: String },
+  resetOtpExpiry: { type: Date },
   createdAt: { type: Date, default: Date.now }
 });
 

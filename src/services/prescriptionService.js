@@ -12,13 +12,13 @@ export const createPrescription = async (prescriptionData) => {
 };
 
 // Get all prescriptions for a doctor
-export const getPrescriptions = async () => {
+export const getPrescriptions = async (page = 1, limit = 10) => {
   try {
-    const response = await api.get('/prescriptions');
-    return response.data.data || [];
+    const response = await api.get(`/prescriptions?page=${page}&limit=${limit}`);
+    return response.data;
   } catch (error) {
     console.error('Error fetching prescriptions:', error);
-    return [];
+    return { data: [], totalPages: 1, total: 0, page: 1, limit: 10 };
   }
 };
 
@@ -34,12 +34,12 @@ export const getPrescriptionById = async (id) => {
 };
 
 // Get prescriptions for a specific patient
-export const getPatientPrescriptions = async (patientId) => {
+export const getPatientPrescriptions = async (patientId, page = 1, limit = 10) => {
   try {
-    const response = await api.get(`/prescriptions/patient/${patientId}`);
-    return response.data.data || [];
+    const response = await api.get(`/prescriptions/patient/${patientId}?page=${page}&limit=${limit}`);
+    return response.data;
   } catch (error) {
     console.error('Error fetching patient prescriptions:', error);
-    return [];
+    return { data: [], totalPages: 1, total: 0, page: 1, limit: 10 };
   }
 };

@@ -95,8 +95,16 @@ const PatientLogin = ({ onSwitchToSignup }) => {
             </button>
           </div>
         </div>
-
-        {/* Removed Demo Login Section */}
+        <div className="form-row" style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+          <button 
+            type="button"
+            className="forgot-password-btn" 
+            onClick={() => navigate('/forgot-password')}
+            style={{ background: 'none', border: 'none', color: '#4f46e5', cursor: 'pointer', fontFamily: 'inherit', fontSize: '13px', fontWeight: '500' }}
+          >
+            Forgot Password?
+          </button>
+        </div>
 
         <button type="submit" className="login-btn" disabled={loading}>
           {loading ? (

@@ -1,8 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as XLSX from 'xlsx';
 import { exportAllData } from '../services/exportService';
 import { getStoredDoctor, doctorLogout, updateDoctorProfile } from '../services/doctorAuth';
+import {
+  getDoctorAppointments, confirmAppointment, cancelAppointment, completeAppointment
+} from '../services/appointmentService';
+import NotificationBell from '../components/Common/NotificationBell';
 import MedicineDB from '../components/MedicineDB/MedicineDB';
 import PatientDB from '../components/PatientDB/PatientDB';
 import PrescriptionGenerator from '../components/Prescription/PrescriptionGenerator';
@@ -12,21 +16,65 @@ import ImageUpload from '../components/Common/ImageUpload';
 import './DoctorDashboardPage.css';
 
 // Import the Report AI component from the report-ai folder
-const ReportAI = () => {
+const ReportAI = ({ doctor }) => {
+  const [iframeUrl, setIframeUrl] = useState('');
+  const iframeRef = React.useRef(null);
+
+  useEffect(() => {
+    const envUrl = process.env.REACT_APP_REPORT_AI_URL;
+    if (envUrl) {
+      setIframeUrl(envUrl);
+    } else {
+      // Dynamically target port 8080 on the current host (works for localhost, 127.0.0.1, or network IPs)
+      const hostname = window.location.hostname;
+      setIframeUrl(`http://${hostname}:8080/`);
+    }
+  }, []);
+
+  const sendAuthData = () => {
+    if (iframeRef.current && iframeRef.current.contentWindow) {
+      iframeRef.current.contentWindow.postMessage({
+        type: 'DOCTOR_AUTH',
+        doctor: doctor
+      }, '*');
+    }
+  };
+
+  useEffect(() => {
+    const handleMessage = (event) => {
+      if (event.data && event.data.type === 'REQUEST_DOCTOR_AUTH') {
+        sendAuthData();
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => {
+      window.removeEventListener('message', handleMessage);
+    };
+  }, [doctor]);
+
+  if (!iframeUrl) return null;
+
   return (
-    <div className="report-ai-container">
-      <div className="report-ai-header">
-        <h2><i className="fas fa-chart-line"></i> Medical Report Analysis</h2>
-        <p>AI-powered analysis of patient medical reports</p>
-      </div>
-      <div className="report-ai-placeholder">
-        <i className="fas fa-robot"></i>
-        <h3>Report AI Module</h3>
-        <p>Upload reports for AI-powered analysis</p>
-        <button className="btn btn-primary" onClick={() => window.location.href = 'http://localhost:8080/'}>
-          Launch Report AI
-        </button>
-      </div>
+    <div style={{ 
+      width: '100%', 
+      height: 'calc(100vh - 170px)', 
+      background: 'white', 
+      borderRadius: '20px', 
+      overflow: 'hidden', 
+      boxShadow: '0 4px 15px rgba(0, 0, 0, 0.05)'
+    }}>
+      <iframe 
+        ref={iframeRef}
+        src={iframeUrl} 
+        onLoad={sendAuthData}
+        style={{ 
+          width: '100%', 
+          height: '100%', 
+          border: 'none'
+        }} 
+        title="Report AI"
+      />
     </div>
   );
 };
@@ -34,11 +82,17 @@ const ReportAI = () => {
 const DoctorDashboardPage = () => {
   const [doctor, setDoctor] = useState(null);
   const [activeTab, setActiveTab] = useState('dashboard');
-  const navigate = useNavigate();
   const [exportingDb, setExportingDb] = useState(false);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [editFormData, setEditFormData] = useState({});
   const [isSaving, setIsSaving] = useState(false);
+  const [appointments, setAppointments] = useState([]);
+  const [apptFilter, setApptFilter] = useState('');
+  const [apptDateFilter, setApptDateFilter] = useState('');
+  const [selectedAppt, setSelectedAppt] = useState(null);
+  const [consultationNotes, setConsultationNotes] = useState('');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   const handleEditClick = () => {
     setEditFormData(doctor);
@@ -79,6 +133,15 @@ const DoctorDashboardPage = () => {
     }
   };
 
+  const fetchDoctorAppointments = useCallback(async () => {
+    try {
+      const data = await getDoctorAppointments(apptFilter, apptDateFilter);
+      setAppointments(data || []);
+    } catch (e) {
+      console.error(e);
+    }
+  }, [apptFilter, apptDateFilter]);
+
   useEffect(() => {
     const currentDoctor = getStoredDoctor();
     if (!currentDoctor) {
@@ -87,6 +150,47 @@ const DoctorDashboardPage = () => {
       setDoctor(currentDoctor);
     }
   }, [navigate]);
+
+  useEffect(() => {
+    if (doctor) {
+      fetchDoctorAppointments();
+    }
+  }, [doctor, fetchDoctorAppointments]);
+
+  const handleConfirmAppointment = async (id) => {
+    try {
+      await confirmAppointment(id);
+      alert('Appointment confirmed!');
+      fetchDoctorAppointments();
+    } catch (err) {
+      alert('Error confirming appointment.');
+    }
+  };
+
+  const handleCancelAppointment = async (id) => {
+    if (!window.confirm('Are you sure you want to cancel this appointment?')) return;
+    try {
+      await cancelAppointment(id);
+      alert('Appointment cancelled.');
+      fetchDoctorAppointments();
+    } catch (err) {
+      alert('Error cancelling appointment.');
+    }
+  };
+
+  const handleCompleteAppointment = async (e) => {
+    e.preventDefault();
+    if (!selectedAppt) return;
+    try {
+      await completeAppointment(selectedAppt._id, consultationNotes);
+      alert('Appointment completed successfully!');
+      setSelectedAppt(null);
+      setConsultationNotes('');
+      fetchDoctorAppointments();
+    } catch (err) {
+      alert('Failed to complete appointment.');
+    }
+  };
 
   const handleLogout = () => {
     doctorLogout();
@@ -142,11 +246,16 @@ const DoctorDashboardPage = () => {
   }
 
   return (
-    <div className="doctor-dashboard">
+    <div className={`doctor-dashboard ${mobileMenuOpen ? 'sidebar-visible' : ''}`}>
       {/* Sidebar */}
-      <div className="dashboard-sidebar">
+      <div className={`dashboard-sidebar doctor-sidebar ${mobileMenuOpen ? 'mobile-open' : ''}`}>
         <div className="sidebar-header">
-          <i className="fas fa-heartbeat"></i>
+          <div className="sidebar-header-top" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+            <i className="fas fa-heartbeat"></i>
+            <button className="close-sidebar-btn" onClick={() => setMobileMenuOpen(false)}>
+              <i className="fas fa-times"></i>
+            </button>
+          </div>
           <h3>MediCare</h3>
           <p>Doctor Portal</p>
         </div>
@@ -167,49 +276,55 @@ const DoctorDashboardPage = () => {
         <nav className="sidebar-nav">
           <button 
             className={activeTab === 'dashboard' ? 'active' : ''}
-            onClick={() => setActiveTab('dashboard')}
+            onClick={() => { setActiveTab('dashboard'); setMobileMenuOpen(false); }}
           >
             <i className="fas fa-home"></i> Dashboard
           </button>
           <button 
+            className={activeTab === 'appointments' ? 'active' : ''}
+            onClick={() => { setActiveTab('appointments'); setMobileMenuOpen(false); }}
+          >
+            <i className="fas fa-calendar-check"></i> Appointments
+          </button>
+          <button 
             className={activeTab === 'medicine' ? 'active' : ''}
-            onClick={() => setActiveTab('medicine')}
+            onClick={() => { setActiveTab('medicine'); setMobileMenuOpen(false); }}
           >
             <i className="fas fa-pills"></i> Medicine DB
           </button>
           <button 
             className={activeTab === 'patients' ? 'active' : ''}
-            onClick={() => setActiveTab('patients')}
+            onClick={() => { setActiveTab('patients'); setMobileMenuOpen(false); }}
           >
             <i className="fas fa-user-injured"></i> Patient DB
           </button>
           <button 
             className={activeTab === 'prescription' ? 'active' : ''}
-            onClick={() => setActiveTab('prescription')}
+            onClick={() => { setActiveTab('prescription'); setMobileMenuOpen(false); }}
           >
             <i className="fas fa-prescription"></i> Prescription
           </button>
           <button 
             className={activeTab === 'mypatients' ? 'active' : ''}
-            onClick={() => setActiveTab('mypatients')}
+            onClick={() => { setActiveTab('mypatients'); setMobileMenuOpen(false); }}
           >
             <i className="fas fa-users"></i> My Patients
           </button>
           <button 
             className={activeTab === 'reportai' ? 'active' : ''}
-            onClick={() => setActiveTab('reportai')}
+            onClick={() => { setActiveTab('reportai'); setMobileMenuOpen(false); }}
           >
             <i className="fas fa-chart-line"></i> Report AI
           </button>
           <button 
             className={activeTab === 'labreport' ? 'active' : ''}
-            onClick={() => setActiveTab('labreport')}
+            onClick={() => { setActiveTab('labreport'); setMobileMenuOpen(false); }}
           >
             <i className="fas fa-flask"></i> Lab Report
           </button>
           <button 
             className={activeTab === 'profile' ? 'active' : ''}
-            onClick={() => setActiveTab('profile')}
+            onClick={() => { setActiveTab('profile'); setMobileMenuOpen(false); }}
           >
             <i className="fas fa-user-cog"></i> Profile
           </button>
@@ -222,14 +337,25 @@ const DoctorDashboardPage = () => {
 
       {/* Main Content */}
       <div className="dashboard-main">
-        <div className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div>
-            <h1>Welcome, {doctor.name}</h1>
-            <p>{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+        <div className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', padding: '1.25rem 2rem', background: 'white', borderBottom: '1px solid #f1f5f9' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <button 
+              className="menu-toggle-btn" 
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              <i className="fas fa-bars"></i>
+            </button>
+            <div>
+              <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: '700', color: '#0f172a' }}>Welcome, {doctor.name}</h1>
+              <p style={{ margin: '4px 0 0 0', color: '#64748b', fontSize: '13px' }}>{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+            </div>
           </div>
-          <button className="btn btn-primary" onClick={handleExportFullDatabase} disabled={exportingDb}>
-            {exportingDb ? <i className="fas fa-spinner fa-spin"></i> : <i className="fas fa-file-excel"></i>} Export Database
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+            <NotificationBell userId={doctor.id} userType="doctor" />
+            <button className="btn btn-primary" onClick={handleExportFullDatabase} disabled={exportingDb}>
+              {exportingDb ? <i className="fas fa-spinner fa-spin"></i> : <i className="fas fa-file-excel"></i>} Export Database
+            </button>
+          </div>
         </div>
 
         <div className="dashboard-content">
@@ -305,8 +431,99 @@ const DoctorDashboardPage = () => {
           {activeTab === 'mypatients' && <DoctorPatients />}
           
           {/* Report AI Tab */}
-          {activeTab === 'reportai' && <ReportAI />}
+          {activeTab === 'reportai' && <ReportAI doctor={doctor} />}
           
+          {/* Appointments Tab */}
+          {activeTab === 'appointments' && (
+            <div className="appointments-tab-doctor">
+              <div className="tab-header-actions">
+                <h2><i className="fas fa-calendar-check"></i> Manage Appointments</h2>
+                <div className="filters-row">
+                  <div className="filter-item">
+                    <label>Status</label>
+                    <select value={apptFilter} onChange={(e) => setApptFilter(e.target.value)}>
+                      <option value="">All Statuses</option>
+                      <option value="pending">Pending</option>
+                      <option value="confirmed">Confirmed</option>
+                      <option value="cancelled">Cancelled</option>
+                      <option value="completed">Completed</option>
+                    </select>
+                  </div>
+                  <div className="filter-item">
+                    <label>Date</label>
+                    <input type="date" value={apptDateFilter} onChange={(e) => setApptDateFilter(e.target.value)} />
+                  </div>
+                </div>
+              </div>
+
+              {appointments.length === 0 ? (
+                <div className="no-appointments-card">
+                  <i className="fas fa-calendar-times"></i>
+                  <h3>No Appointments Scheduled</h3>
+                  <p>Check back later or adjust your search filters.</p>
+                </div>
+              ) : (
+                <div className="doctor-appointments-grid">
+                  {appointments.map(appt => (
+                    <div key={appt._id} className={`appointment-card-doctor status-${appt.status}`}>
+                      <div className="card-header">
+                        <div>
+                          <h4>{appt.patientId?.name || 'Unknown Patient'}</h4>
+                          <p className="pat-meta">
+                            Age/DOB: {appt.patientId?.dateOfBirth ? new Date(appt.patientId.dateOfBirth).toLocaleDateString() : 'N/A'} | Blood: {appt.patientId?.bloodGroup || 'N/A'}
+                          </p>
+                        </div>
+                        <span className={`status-badge ${appt.status}`}>{appt.status.toUpperCase()}</span>
+                      </div>
+
+                      <div className="card-body">
+                        <p style={{ margin: '4px 0', fontSize: '14px' }}><i className="fas fa-calendar-day" style={{ color: '#4f46e5', marginRight: '6px' }}></i> {new Date(appt.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}</p>
+                        <p style={{ margin: '4px 0', fontSize: '14px' }}><i className="fas fa-clock" style={{ color: '#4f46e5', marginRight: '6px' }}></i> {appt.timeSlot}</p>
+                        {appt.reason && <p className="reason-text"><strong>Reason:</strong> {appt.reason}</p>}
+                        {appt.notes && <p className="notes-text"><strong>My Notes:</strong> {appt.notes}</p>}
+
+                        {/* Complete form inline */}
+                        {selectedAppt && selectedAppt._id === appt._id && (
+                          <form onSubmit={handleCompleteAppointment} className="complete-form-inline">
+                            <label>Consultation Summary & Prescription Notes</label>
+                            <textarea
+                              required
+                              rows={3}
+                              placeholder="Type diagnoses, dosage, or instructions..."
+                              value={consultationNotes}
+                              onChange={(e) => setConsultationNotes(e.target.value)}
+                            />
+                            <div className="form-actions">
+                              <button type="submit" className="btn-submit-notes">Save & Complete</button>
+                              <button type="button" className="btn-cancel-notes" onClick={() => setSelectedAppt(null)}>Cancel</button>
+                            </div>
+                          </form>
+                        )}
+                      </div>
+
+                      {!selectedAppt && (
+                        <div className="card-actions">
+                          {appt.status === 'pending' && (
+                            <>
+                              <button className="btn-confirm" onClick={() => handleConfirmAppointment(appt._id)}>Confirm</button>
+                              <button className="btn-cancel" onClick={() => handleCancelAppointment(appt._id)}>Cancel</button>
+                            </>
+                          )}
+                          {appt.status === 'confirmed' && (
+                            <>
+                              <button className="btn-complete" onClick={() => { setSelectedAppt(appt); setConsultationNotes(''); }}>Complete</button>
+                              <button className="btn-cancel" onClick={() => handleCancelAppointment(appt._id)}>Cancel</button>
+                            </>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Profile Tab */}
           {activeTab === 'profile' && (
             <div className="profile-tab">

@@ -56,10 +56,10 @@ export const assignPatientToDoctor = async (patientId, doctorId) => {
 };
 
 // 👇 NEW: Get all patients for the logged-in doctor
-export const getMyPatients = async () => {
+export const getMyPatients = async (page = 1, limit = 12) => {
   try {
-    const response = await api.get('/doctors/my-patients');
-    return response.data.data;
+    const response = await api.get(`/doctors/my-patients?page=${page}&limit=${limit}`);
+    return response.data;
   } catch (error) {
     console.error('Error fetching my patients:', error);
     throw error;
